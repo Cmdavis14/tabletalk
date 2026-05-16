@@ -88,6 +88,27 @@ export default function GuestSubmissionPage() {
       setSubmitError('Something went wrong. Please try again.')
     } else {
       setSubmitted(true)
+
+      // Fire-and-forget — guest success screen is already shown, email is best-effort
+      fetch('/api/notify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          restaurantName: restaurant.name,
+          issueType: selectedType,
+          priority: dbPriority.charAt(0).toUpperCase() + dbPriority.slice(1),
+          guestStatus,
+          tableNumber: tableNumber || null,
+          message: message || null,
+        }),
+      }).then(async (res) => {
+        if (!res.ok) {
+          const body = await res.json().catch(() => ({}))
+          console.error('[TableTalk] Email notification failed:', body)
+        }
+      }).catch((err) => {
+        console.error('[TableTalk] Email notification request failed:', err)
+      })
     }
   }
 
