@@ -1,8 +1,6 @@
 import { Resend } from 'resend'
 import { NextResponse } from 'next/server'
 
-const resend = new Resend(process.env.RESEND_API_KEY)
-
 export interface NotifyPayload {
   restaurantName: string
   issueType: string
@@ -13,13 +11,16 @@ export interface NotifyPayload {
 }
 
 export async function POST(request: Request) {
+  const apiKey = process.env.RESEND_API_KEY
   const from = process.env.RESEND_FROM_EMAIL
   const to = process.env.NOTIFY_EMAIL
 
-  if (!process.env.RESEND_API_KEY || !from || !to) {
+  if (!apiKey || !from || !to) {
     console.error('[notify] Missing env vars — RESEND_API_KEY, RESEND_FROM_EMAIL, or NOTIFY_EMAIL not set')
     return NextResponse.json({ error: 'Email notifications not configured' }, { status: 500 })
   }
+
+  const resend = new Resend(apiKey)
 
   let body: NotifyPayload
   try {
