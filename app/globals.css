@@ -49,6 +49,11 @@
 }
 
 :root {
+  /* TableTalk brand tokens */
+  --tt-navy: #07111F;
+  --tt-teal: #009B9A;
+  --tt-teal-soft: #DDFBFA;
+
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);
   --card: oklch(1 0 0);

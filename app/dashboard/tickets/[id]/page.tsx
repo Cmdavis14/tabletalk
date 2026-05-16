@@ -72,18 +72,18 @@ export default function TicketDetailPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <Loader2 className="w-5 h-5 text-gray-400 animate-spin" />
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <Loader2 className="w-5 h-5 text-slate-400 animate-spin" />
       </div>
     )
   }
 
   if (notFound || !issue) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center px-6">
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center px-6">
         <div className="text-center">
-          <p className="text-gray-500 mb-3">Ticket not found.</p>
-          <Link href="/dashboard" className="text-sm text-black underline">
+          <p className="text-slate-500 mb-3">Ticket not found.</p>
+          <Link href="/dashboard" className="text-sm text-slate-900 underline">
             Back to dashboard
           </Link>
         </div>
@@ -98,29 +98,29 @@ export default function TicketDetailPage() {
   const issueLabel = ISSUE_TYPE_LABELS[issue.issue_type] ?? issue.issue_type
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-slate-50">
       {/* Header */}
-      <header className="bg-white border-b border-gray-200">
+      <header className="bg-[#07111F]">
         <div className="max-w-3xl mx-auto px-6 py-4 flex items-center gap-2 text-sm">
           <Link
             href="/dashboard"
-            className="flex items-center gap-1.5 text-gray-400 hover:text-gray-700 transition-colors"
+            className="flex items-center gap-1.5 text-slate-400 hover:text-white transition-colors"
           >
             <ArrowLeft className="w-3.5 h-3.5" /> Dashboard
           </Link>
-          <span className="text-gray-300">/</span>
-          <span className="text-gray-900 font-medium truncate">{issueLabel}</span>
-          {statusSaving && <Loader2 className="w-3 h-3 text-gray-400 animate-spin ml-auto" />}
+          <span className="text-slate-600">/</span>
+          <span className="text-white font-medium truncate">{issueLabel}</span>
+          {statusSaving && <Loader2 className="w-3 h-3 text-slate-400 animate-spin ml-auto" />}
         </div>
       </header>
 
       <main className="max-w-3xl mx-auto px-6 py-8 space-y-5">
         {/* Ticket info */}
-        <div className="bg-white rounded-2xl border border-gray-200 p-6">
+        <div className="bg-white rounded-2xl border border-slate-200 p-6">
           <div className="flex items-start justify-between gap-4 mb-5">
             <div>
-              <h1 className="text-xl font-bold text-gray-900">{issueLabel}</h1>
-              <p className="text-sm text-gray-400 mt-0.5">Table {issue.table_number ?? '—'}</p>
+              <h1 className="text-xl font-bold text-slate-900">{issueLabel}</h1>
+              <p className="text-sm text-slate-400 mt-0.5">Table {issue.table_number ?? '—'}</p>
             </div>
             <div className="flex gap-2 flex-wrap justify-end">
               <span className={cn('text-xs px-2.5 py-1 rounded-full border font-semibold', pCfg.className)}>
@@ -133,12 +133,12 @@ export default function TicketDetailPage() {
           </div>
 
           {/* Guest message */}
-          <div className="bg-gray-50 rounded-xl p-4 mb-5">
+          <div className="bg-slate-50 rounded-xl p-4 mb-5">
             <div className="flex items-center gap-2 mb-2">
-              <MessageSquare className="w-3.5 h-3.5 text-gray-400" />
-              <span className="text-xs text-gray-400 font-medium">Guest message</span>
+              <MessageSquare className="w-3.5 h-3.5 text-slate-400" />
+              <span className="text-xs text-slate-400 font-medium">Guest message</span>
             </div>
-            <p className="text-sm text-gray-700 leading-relaxed">
+            <p className="text-sm text-slate-700 leading-relaxed">
               &ldquo;{issue.message ?? 'No message provided.'}&rdquo;
             </p>
           </div>
@@ -146,41 +146,41 @@ export default function TicketDetailPage() {
           {/* Meta */}
           <div className="grid grid-cols-3 gap-4 text-sm">
             <div>
-              <p className="text-xs text-gray-400 mb-1 flex items-center gap-1">
+              <p className="text-xs text-slate-400 mb-1 flex items-center gap-1">
                 <User className="w-3 h-3" /> Guest status
               </p>
-              <p className="font-medium text-gray-800 flex items-center gap-1.5">
-                {issue.is_guest_still_here && <span className="w-2 h-2 bg-green-500 rounded-full" />}
+              <p className="font-medium text-slate-800 flex items-center gap-1.5">
+                {issue.is_guest_still_here && <span className="w-2 h-2 bg-[#009B9A] rounded-full" />}
                 {issue.is_guest_still_here ? 'Still here' : 'Already left'}
               </p>
             </div>
             <div>
-              <p className="text-xs text-gray-400 mb-1 flex items-center gap-1">
+              <p className="text-xs text-slate-400 mb-1 flex items-center gap-1">
                 <Clock className="w-3 h-3" /> Submitted
               </p>
-              <p className="font-medium text-gray-800">{timeAgo(issue.created_at)}</p>
+              <p className="font-medium text-slate-800">{timeAgo(issue.created_at)}</p>
             </div>
             <div>
-              <p className="text-xs text-gray-400 mb-1 flex items-center gap-1">
+              <p className="text-xs text-slate-400 mb-1 flex items-center gap-1">
                 <Hash className="w-3 h-3" /> Order ref
               </p>
-              <p className="font-medium text-gray-800">{issue.order_identifier ?? '—'}</p>
+              <p className="font-medium text-slate-800">{issue.order_identifier ?? '—'}</p>
             </div>
           </div>
 
           {/* Contact info if provided */}
           {(issue.customer_name || issue.customer_email) && (
-            <div className="mt-4 pt-4 border-t border-gray-100 grid grid-cols-2 gap-4 text-sm">
+            <div className="mt-4 pt-4 border-t border-slate-100 grid grid-cols-2 gap-4 text-sm">
               {issue.customer_name && (
                 <div>
-                  <p className="text-xs text-gray-400 mb-1">Guest name</p>
-                  <p className="font-medium text-gray-800">{issue.customer_name}</p>
+                  <p className="text-xs text-slate-400 mb-1">Guest name</p>
+                  <p className="font-medium text-slate-800">{issue.customer_name}</p>
                 </div>
               )}
               {issue.customer_email && (
                 <div>
-                  <p className="text-xs text-gray-400 mb-1">Email</p>
-                  <p className="font-medium text-gray-800">{issue.customer_email}</p>
+                  <p className="text-xs text-slate-400 mb-1">Email</p>
+                  <p className="font-medium text-slate-800">{issue.customer_email}</p>
                 </div>
               )}
             </div>
@@ -188,9 +188,9 @@ export default function TicketDetailPage() {
         </div>
 
         {/* Status selector */}
-        <div className="bg-white rounded-2xl border border-gray-200 p-6">
-          <h2 className="font-semibold text-gray-900 mb-1">Update Status</h2>
-          <p className="text-xs text-gray-400 mb-4">Move the issue forward as your team handles it.</p>
+        <div className="bg-white rounded-2xl border border-slate-200 p-6">
+          <h2 className="font-semibold text-slate-900 mb-1">Update Status</h2>
+          <p className="text-xs text-slate-400 mb-4">Move the issue forward as your team handles it.</p>
           <div className="flex items-center gap-1.5 flex-wrap">
             {STATUS_STEPS.flatMap((s, idx) => {
               const btn = (
@@ -201,8 +201,8 @@ export default function TicketDetailPage() {
                   className={cn(
                     'px-4 py-2.5 rounded-xl text-sm font-medium border transition-all disabled:opacity-60 disabled:cursor-not-allowed',
                     currentStatus === s
-                      ? 'bg-black text-white border-black shadow-sm'
-                      : 'bg-white text-gray-600 border-gray-200 hover:border-gray-400 hover:bg-gray-50'
+                      ? 'bg-[#009B9A] text-white border-[#009B9A] shadow-sm'
+                      : 'bg-white text-slate-600 border-slate-200 hover:border-slate-400 hover:bg-slate-50'
                   )}
                 >
                   {s}
@@ -210,16 +210,16 @@ export default function TicketDetailPage() {
               )
               return idx === 0
                 ? [btn]
-                : [<span key={`sep-${idx}`} className="text-gray-300 select-none text-sm">›</span>, btn]
+                : [<span key={`sep-${idx}`} className="text-slate-300 select-none text-sm">›</span>, btn]
             })}
           </div>
         </div>
 
         {/* Timeline */}
-        <div className="bg-white rounded-2xl border border-gray-200 p-6">
-          <h2 className="font-semibold text-gray-900 mb-5">Timeline</h2>
+        <div className="bg-white rounded-2xl border border-slate-200 p-6">
+          <h2 className="font-semibold text-slate-900 mb-5">Timeline</h2>
           <div className="relative">
-            <div className="absolute left-[11px] top-3 bottom-3 w-0.5 bg-gray-100" />
+            <div className="absolute left-[11px] top-3 bottom-3 w-0.5 bg-slate-100" />
             <div className="space-y-5 relative">
               {STATUS_STEPS.map((step, idx) => {
                 const isPast = idx < currentStepIndex
@@ -228,7 +228,7 @@ export default function TicketDetailPage() {
                   <div key={step} className="flex items-center gap-3">
                     <div className={cn(
                       'w-6 h-6 rounded-full flex items-center justify-center shrink-0 border-2 bg-white',
-                      isCurrent ? 'border-black bg-black' : isPast ? 'border-gray-300 bg-gray-300' : 'border-gray-200'
+                      isCurrent ? 'border-[#009B9A] bg-[#009B9A]' : isPast ? 'border-slate-300 bg-slate-300' : 'border-slate-200'
                     )}>
                       {(isCurrent || isPast) && (
                         <CheckCircle2 className="w-3.5 h-3.5 text-white" />
@@ -237,12 +237,12 @@ export default function TicketDetailPage() {
                     <div className="flex items-center gap-2">
                       <span className={cn(
                         'text-sm font-medium',
-                        isCurrent ? 'text-gray-900' : isPast ? 'text-gray-400' : 'text-gray-300'
+                        isCurrent ? 'text-slate-900' : isPast ? 'text-slate-400' : 'text-slate-300'
                       )}>
                         {step}
                       </span>
                       {isCurrent && (
-                        <span className="text-xs bg-black text-white px-2 py-0.5 rounded-full">Current</span>
+                        <span className="text-xs bg-[#009B9A] text-white px-2 py-0.5 rounded-full">Current</span>
                       )}
                     </div>
                   </div>
@@ -253,8 +253,8 @@ export default function TicketDetailPage() {
         </div>
 
         {/* Internal notes */}
-        <div className="bg-white rounded-2xl border border-gray-200 p-6">
-          <h2 className="font-semibold text-gray-900 mb-3">Internal Notes</h2>
+        <div className="bg-white rounded-2xl border border-slate-200 p-6">
+          <h2 className="font-semibold text-slate-900 mb-3">Internal Notes</h2>
           <div className="flex items-start gap-2 bg-amber-50 border border-amber-200 rounded-xl px-3 py-2.5 mb-4">
             <EyeOff className="w-3.5 h-3.5 text-amber-600 shrink-0 mt-0.5" />
             <p className="text-xs text-amber-700 font-medium leading-relaxed">
@@ -266,18 +266,18 @@ export default function TicketDetailPage() {
             placeholder="Add notes for the team (e.g. comped dessert, spoke with manager)..."
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
-            className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 text-sm outline-none focus:border-gray-500 transition-colors resize-none bg-gray-50"
+            className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm outline-none focus:border-[#009B9A] transition-colors resize-none bg-slate-50"
           />
           <div className="flex items-center gap-3 mt-3">
             <button
               onClick={handleSaveNote}
               disabled={!notes.trim() || notesSaving}
-              className="text-sm bg-gray-900 hover:bg-black text-white px-4 py-2 rounded-xl transition-colors font-medium disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-2"
+              className="text-sm bg-[#07111F] hover:bg-[#0B1220] text-white px-4 py-2 rounded-xl transition-colors font-medium disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-2"
             >
               {notesSaving ? <><Loader2 className="w-3.5 h-3.5 animate-spin" /> Saving…</> : 'Save note'}
             </button>
             {notesSaved && (
-              <span className="text-xs text-green-600 flex items-center gap-1">
+              <span className="text-xs text-[#009B9A] flex items-center gap-1">
                 <CheckCircle2 className="w-3.5 h-3.5" /> Saved
               </span>
             )}
