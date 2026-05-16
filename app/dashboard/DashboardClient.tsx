@@ -21,6 +21,12 @@ interface Props {
 
 export default function DashboardClient({ restaurantId, restaurantName, restaurantLocation, restaurantSlug, initialTickets }: Props) {
   const [tickets, setTickets] = useState<Ticket[]>(initialTickets)
+  const [, setTick] = useState(0)
+
+  useEffect(() => {
+    const id = setInterval(() => setTick((n) => n + 1), 60_000)
+    return () => clearInterval(id)
+  }, [])
 
   useEffect(() => {
     const channel = supabase
@@ -64,13 +70,13 @@ export default function DashboardClient({ restaurantId, restaurantName, restaura
     (t) => t.guestStatus === 'Still here' && t.status !== 'Resolved' && t.status !== 'Closed'
   )
 
-  const typeCounts = tickets.reduce<Record<string, number>>((acc, t) => {
+  const resolvedTypeCounts = resolvedToday.reduce<Record<string, number>>((acc, t) => {
     acc[t.type] = (acc[t.type] || 0) + 1
     return acc
   }, {})
-  const topType =
-    Object.keys(typeCounts).length > 0
-      ? Object.entries(typeCounts).sort((a, b) => b[1] - a[1])[0][0]
+  const topResolvedType =
+    Object.keys(resolvedTypeCounts).length > 0
+      ? Object.entries(resolvedTypeCounts).sort((a, b) => b[1] - a[1])[0][0]
       : '—'
 
   return (
@@ -162,7 +168,7 @@ export default function DashboardClient({ restaurantId, restaurantName, restaura
             </div>
             <p className="text-3xl font-bold text-slate-900">{resolvedToday.length}</p>
             <p className="text-xs text-slate-400 mt-1">
-              {topType !== '—' ? `Top issue: ${topType}` : 'No resolved issues yet'}
+              {topResolvedType !== '—' ? `Most resolved: ${topResolvedType}` : 'No resolved issues yet'}
             </p>
           </div>
         </div>

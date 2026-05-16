@@ -15,10 +15,10 @@ export default async function DashboardPage() {
 
   if (rError || !restaurant) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center px-6">
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center px-6">
         <div className="text-center">
-          <p className="text-gray-500 mb-2">Could not load restaurant data.</p>
-          <p className="text-xs text-gray-400">{rError?.message}</p>
+          <p className="text-slate-500 mb-2">Could not load restaurant data.</p>
+          <p className="text-xs text-slate-400">{rError?.message}</p>
         </div>
       </div>
     )
@@ -32,10 +32,10 @@ export default async function DashboardPage() {
 
   if (iError) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center px-6">
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center px-6">
         <div className="text-center">
-          <p className="text-gray-500 mb-2">Could not load guest issues.</p>
-          <p className="text-xs text-gray-400">{iError.message}</p>
+          <p className="text-slate-500 mb-2">Could not load guest issues.</p>
+          <p className="text-xs text-slate-400">{iError.message}</p>
         </div>
       </div>
     )

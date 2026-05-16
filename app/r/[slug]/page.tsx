@@ -153,7 +153,7 @@ export default function GuestSubmissionPage() {
       {/* Header */}
       <header className="bg-white border-b border-slate-100 sticky top-0 z-10">
         <div className="max-w-lg mx-auto px-6 py-4 flex items-center gap-2.5">
-          <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-[#07111F] to-[#009B9A] flex items-center justify-center">
+          <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-[#07111F] to-[#009B9A] flex items-center justify-center">
             <MessageSquare className="w-3.5 h-3.5 text-white" />
           </div>
           <div>
