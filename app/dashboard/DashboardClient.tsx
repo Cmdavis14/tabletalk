@@ -15,10 +15,11 @@ interface Props {
   restaurantId: string
   restaurantName: string
   restaurantLocation: string | null
+  restaurantSlug: string
   initialTickets: Ticket[]
 }
 
-export default function DashboardClient({ restaurantId, restaurantName, restaurantLocation, initialTickets }: Props) {
+export default function DashboardClient({ restaurantId, restaurantName, restaurantLocation, restaurantSlug, initialTickets }: Props) {
   const [tickets, setTickets] = useState<Ticket[]>(initialTickets)
 
   useEffect(() => {
@@ -97,11 +98,12 @@ export default function DashboardClient({ restaurantId, restaurantName, restaura
               QR Code
             </Link>
             <Link
-              href="/r/sol-smoke-kitchen"
+              href={`/r/${restaurantSlug}`}
               className="hidden sm:inline-flex text-sm text-gray-500 hover:text-black border border-gray-200 hover:border-gray-400 px-3 py-1.5 rounded-lg transition-colors"
             >
               Guest form ↗
             </Link>
+
             <form action={logoutAction}>
               <button
                 type="submit"
@@ -171,7 +173,7 @@ export default function DashboardClient({ restaurantId, restaurantName, restaura
                 Issues submitted via the guest form will appear here.
               </p>
               <Link
-                href="/r/sol-smoke-kitchen"
+                href={`/r/${restaurantSlug}`}
                 className="inline-block mt-4 text-xs text-gray-500 hover:text-black underline underline-offset-2 transition-colors"
               >
                 Open guest form to test

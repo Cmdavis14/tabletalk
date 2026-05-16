@@ -4,11 +4,13 @@ import DashboardClient from './DashboardClient'
 
 export const dynamic = 'force-dynamic'
 
+const DEMO_SLUG = process.env.NEXT_PUBLIC_DEMO_RESTAURANT_SLUG || 'sol-smoke-kitchen'
+
 export default async function DashboardPage() {
   const { data: restaurant, error: rError } = await supabase
     .from('restaurants')
     .select('id, name, location')
-    .eq('slug', 'sol-smoke-kitchen')
+    .eq('slug', DEMO_SLUG)
     .single()
 
   if (rError || !restaurant) {
@@ -46,6 +48,7 @@ export default async function DashboardPage() {
       restaurantId={restaurant.id}
       restaurantName={restaurant.name}
       restaurantLocation={restaurant.location}
+      restaurantSlug={DEMO_SLUG}
       initialTickets={initialTickets}
     />
   )
