@@ -3,20 +3,23 @@
 import { useState, useEffect } from 'react'
 import { useParams } from 'next/navigation'
 import Link from 'next/link'
-import { MessageSquare, CheckCircle2, Loader2 } from 'lucide-react'
+import {
+  MessageSquare, CheckCircle2, Loader2,
+  Utensils, Clock, AlertCircle, User, Sparkles, UserCog, HelpCircle,
+} from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { supabase } from '@/lib/supabase'
 import { ISSUE_TYPE_TO_DB, ISSUE_PRIORITY_MAP } from '@/lib/db'
 import type { DbRestaurant } from '@/lib/db'
 
 const ISSUE_TYPES = [
-  'Food problem',
-  'Long wait',
-  'Wrong order',
-  'Service issue',
-  'Cleanliness issue',
-  'Manager request',
-  'Other',
+  { label: 'Food problem',       Icon: Utensils    },
+  { label: 'Long wait',          Icon: Clock       },
+  { label: 'Wrong order',        Icon: AlertCircle },
+  { label: 'Service issue',      Icon: User        },
+  { label: 'Cleanliness issue',  Icon: Sparkles    },
+  { label: 'Manager request',    Icon: UserCog     },
+  { label: 'Other',              Icon: HelpCircle  },
 ]
 
 export default function GuestSubmissionPage() {
@@ -127,7 +130,7 @@ export default function GuestSubmissionPage() {
           </div>
           <h2 className="text-xl font-bold text-gray-900 mb-2">We&apos;re on it.</h2>
           <p className="text-gray-500 text-sm leading-relaxed mb-8">
-            Thanks for letting us know. A team member has been notified and will follow up with you shortly.
+            Thanks for telling us. Our team has been notified and will be right with you.
           </p>
           <div className="flex flex-col gap-3 items-center">
             <button
@@ -163,10 +166,10 @@ export default function GuestSubmissionPage() {
       <main className="max-w-lg mx-auto px-6 py-8 pb-16">
         <div className="mb-8">
           <h1 className="text-2xl font-bold text-gray-900 mb-2 leading-snug">
-            Something wrong? Let us fix it before you leave.
+            We want to make this right.
           </h1>
           <p className="text-gray-500 text-sm leading-relaxed">
-            Let our team know what happened and we&apos;ll take care of you right away — privately and quickly.
+            Tell us what happened and a team member will be with you shortly.
           </p>
         </div>
 
@@ -174,23 +177,24 @@ export default function GuestSubmissionPage() {
           {/* Issue type */}
           <div>
             <label className="block text-sm font-semibold text-gray-800 mb-3">
-              What&apos;s the issue? <span className="text-red-500">*</span>
+              What can we help with? <span className="text-red-400">*</span>
             </label>
             <div className="grid grid-cols-2 gap-2">
-              {ISSUE_TYPES.map((type) => (
+              {ISSUE_TYPES.map(({ label, Icon }) => (
                 <button
-                  key={type}
+                  key={label}
                   type="button"
-                  onClick={() => setSelectedType(type)}
+                  onClick={() => setSelectedType(label)}
                   className={cn(
-                    'px-4 py-3 rounded-xl border text-sm font-medium text-left transition-all',
-                    type === 'Other' && 'col-span-2',
-                    selectedType === type
+                    'flex items-center gap-2 px-4 py-3 rounded-xl border text-sm font-medium text-left transition-all',
+                    label === 'Other' && 'col-span-2',
+                    selectedType === label
                       ? 'bg-black text-white border-black shadow-sm'
                       : 'bg-white text-gray-700 border-gray-200 hover:border-gray-400 hover:bg-gray-50'
                   )}
                 >
-                  {type}
+                  <Icon className="w-4 h-4 shrink-0" />
+                  {label}
                 </button>
               ))}
             </div>
@@ -247,11 +251,11 @@ export default function GuestSubmissionPage() {
           {/* Message */}
           <div>
             <label className="block text-sm font-semibold text-gray-800 mb-1.5">
-              Tell us what happened <span className="text-red-500">*</span>
+              Give us the details <span className="text-red-400">*</span>
             </label>
             <textarea
               rows={4}
-              placeholder="Describe the issue so we can help as quickly as possible..."
+              placeholder="Walk us through what happened — the more you share, the faster we can help."
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 text-sm outline-none focus:border-gray-500 transition-colors bg-white resize-none"
@@ -261,7 +265,7 @@ export default function GuestSubmissionPage() {
           {/* Optional contact */}
           <div className="bg-white rounded-2xl border border-gray-200 p-5 space-y-3">
             <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide">
-              Optional — if you&apos;d like us to follow up with you
+              Want us to follow up with you? (optional)
             </p>
             <input
               type="text"
@@ -290,10 +294,10 @@ export default function GuestSubmissionPage() {
           >
             {submitting ? (
               <>
-                <Loader2 className="w-4 h-4 animate-spin" /> Submitting…
+                <Loader2 className="w-4 h-4 animate-spin" /> Sending…
               </>
             ) : (
-              'Report Issue'
+              'Send to our team'
             )}
           </button>
         </form>

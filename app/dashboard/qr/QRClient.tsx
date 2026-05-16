@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import QRCode from 'react-qr-code'
-import { ArrowLeft, Printer, Copy, CheckCircle2 } from 'lucide-react'
+import { ArrowLeft, Printer, Copy, CheckCircle2, Lock } from 'lucide-react'
 import { useState } from 'react'
 
 interface Props {
@@ -70,9 +70,9 @@ export default function QRClient({ restaurantName, guestUrl }: Props) {
             {restaurantName}
           </p>
           <h2 className="text-xl font-bold text-gray-900 leading-snug mb-6">
-            Something wrong?<br />
-            Scan here and let us fix<br />
-            it before you leave.
+            Something not right?<br />
+            Tell us privately —<br />
+            we&apos;ll fix it now.
           </h2>
 
           <div className="bg-white p-3 rounded-xl border border-gray-100 mb-6">
@@ -85,11 +85,12 @@ export default function QRClient({ restaurantName, guestUrl }: Props) {
             />
           </div>
 
-          <p className="text-[11px] text-gray-400 break-all font-mono">{guestUrl}</p>
+          <p className="text-[11px] text-gray-400 break-all font-mono mb-5">{guestUrl}</p>
 
-          <div className="mt-6 pt-5 border-t border-gray-100 w-full">
-            <p className="text-xs text-gray-400">
-              No app needed · Scan with your phone camera · Takes 30 seconds
+          <div className="pt-5 border-t border-gray-100 w-full">
+            <p className="text-xs text-gray-400 flex items-center justify-center gap-1.5">
+              <Lock className="w-3 h-3" />
+              Private · No app needed · Takes 30 seconds
             </p>
           </div>
         </div>
@@ -102,10 +103,9 @@ export default function QRClient({ restaurantName, guestUrl }: Props) {
             {restaurantName}
           </p>
           <h2 style={{ fontSize: '20pt', fontWeight: 800, lineHeight: 1.15, color: '#111827', marginBottom: '20pt' }}>
-            Something wrong?<br />
-            Scan here and let<br />
-            us fix it before<br />
-            you leave.
+            Something not right?<br />
+            Tell us privately —<br />
+            we&apos;ll fix it now.
           </h2>
 
           <div style={{ background: '#fff', padding: '10pt', border: '1pt solid #e5e7eb', borderRadius: '8pt', marginBottom: '16pt', display: 'inline-block' }}>
@@ -124,7 +124,7 @@ export default function QRClient({ restaurantName, guestUrl }: Props) {
 
           <div style={{ borderTop: '1pt solid #e5e7eb', paddingTop: '10pt', width: '100%' }}>
             <p style={{ fontSize: '8pt', color: '#9ca3af' }}>
-              No app needed · Scan with your phone camera · Takes 30 seconds
+              Private · No app needed · Takes 30 seconds
             </p>
           </div>
         </div>
