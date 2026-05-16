@@ -2,13 +2,14 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
-import { MessageSquare, AlertTriangle, Clock, CheckCircle2, ChevronRight } from 'lucide-react'
+import { MessageSquare, AlertTriangle, Clock, CheckCircle2, ChevronRight, LogOut } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { dbToTicket } from '@/lib/db'
 import type { DbGuestIssue } from '@/lib/db'
 import { priorityConfig, statusConfig, timeAgo } from '@/lib/ticket-utils'
 import type { Ticket } from '@/lib/mock-data'
 import { cn } from '@/lib/utils'
+import { logoutAction } from './actions'
 
 interface Props {
   restaurantId: string
@@ -101,6 +102,16 @@ export default function DashboardClient({ restaurantId, restaurantName, restaura
             >
               Guest form ↗
             </Link>
+            <form action={logoutAction}>
+              <button
+                type="submit"
+                className="flex items-center gap-1.5 text-sm text-gray-400 hover:text-black transition-colors"
+                title="Log out"
+              >
+                <LogOut className="w-4 h-4" />
+                <span className="hidden sm:inline">Log out</span>
+              </button>
+            </form>
           </div>
         </div>
       </header>
