@@ -12,4 +12,5 @@ export interface Ticket {
   guestStatus: GuestStatus
   createdAt: string
   orderRef: string
+  resolvedAt: string | null
 }

@@ -1,6 +1,8 @@
 import { supabase } from '@/lib/supabase'
 import QRClient from './QRClient'
 
+export const dynamic = 'force-dynamic'
+
 const DEMO_SLUG = process.env.NEXT_PUBLIC_DEMO_RESTAURANT_SLUG || 'sol-smoke-kitchen'
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000'
 

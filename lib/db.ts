@@ -85,5 +85,6 @@ export function dbToTicket(issue: DbGuestIssue): Ticket {
     guestStatus: issue.is_guest_still_here ? 'Still here' : 'Already left',
     createdAt: issue.created_at,
     orderRef: issue.order_identifier ?? '—',
+    resolvedAt: issue.resolved_at ?? null,
   }
 }

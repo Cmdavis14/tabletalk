@@ -65,7 +65,11 @@ export default function DashboardClient({ restaurantId, restaurantName, restaura
   const openTickets = tickets.filter((t) => t.status !== 'Resolved' && t.status !== 'Closed')
   const newTickets = tickets.filter((t) => t.status === 'New')
   const criticalTickets = tickets.filter((t) => t.priority === 'Critical')
-  const resolvedToday = tickets.filter((t) => t.status === 'Resolved')
+  const todayStart = new Date()
+  todayStart.setHours(0, 0, 0, 0)
+  const resolvedToday = tickets.filter(
+    (t) => t.status === 'Resolved' && t.resolvedAt != null && new Date(t.resolvedAt) >= todayStart
+  )
   const stillHereOpen = tickets.filter(
     (t) => t.guestStatus === 'Still here' && t.status !== 'Resolved' && t.status !== 'Closed'
   )
