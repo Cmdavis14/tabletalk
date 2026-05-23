@@ -182,14 +182,14 @@ export default function GuestSubmissionPage() {
                   type="button"
                   onClick={() => setSelectedType(label)}
                   className={cn(
-                    'flex items-center gap-2 px-4 py-3 rounded-xl border text-sm font-medium text-left transition-all',
+                    'flex items-center gap-1.5 px-4 py-3 rounded-xl border text-[13px] font-medium text-left transition-all',
                     label === 'Other' && 'col-span-2',
                     selectedType === label
                       ? 'bg-[#07111F] text-white border-[#07111F] shadow-sm'
                       : 'bg-white text-slate-700 border-slate-200 hover:border-slate-400 hover:bg-slate-50'
                   )}
                 >
-                  <Icon className="w-4 h-4 shrink-0" />
+                  <Icon className="w-3.5 h-3.5 shrink-0" />
                   {label}
                 </button>
               ))}

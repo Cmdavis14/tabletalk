@@ -47,7 +47,7 @@ The section containing Guest status / Submitted / Order ref used `grid grid-cols
 ### DASH-02 — Filter tab scroll: no visual affordance on 320px
 **Route:** `/dashboard`
 **Screen:** 320px (iPhone SE and equivalents)
-**Status:** 🔲 Not yet implemented
+**Status:** ✅ Fixed — filter row wrapped in `relative` container, static right-edge `bg-gradient-to-l from-white` overlay added in `DashboardClient.tsx`
 
 Five tabs at current widths total ~310px. On 320px viewport with `px-6` = 272px usable — tabs overflow and require horizontal scroll. The `overflow-x-auto` handles the scroll mechanically, but there is no visual cue (fade/shadow on the right edge) that tabs extend further. A user who can only see "All · New · In P..." will not know to swipe.
 
@@ -115,7 +115,7 @@ The stepper is `flex flex-wrap` with `›` separators as standalone `<span>` ele
 ### GUEST-01 — Issue type grid: "Cleanliness issue" label wraps at 320px
 **Route:** `/r/[slug]`
 **Screen:** 320px
-**Status:** 🔲 Not yet implemented
+**Status:** ✅ Fixed — `text-sm` → `text-[13px]`, `gap-2` → `gap-1.5`, `w-4 h-4` → `w-3.5 h-3.5` on issue type buttons in `r/[slug]/page.tsx`
 
 `grid grid-cols-2` with `px-4 py-3` buttons. At 320px each button is 134px wide; after `px-4` the label area is ~102px. "Cleanliness issue" (14px ≈ 106px) + icon (16px) + gap (8px) = ~130px — does not fit. Label wraps, making that button taller than all others. The grid rows then have mismatched heights and the `col-span-2` "Other" row breaks the visual rhythm.
 
@@ -126,7 +126,7 @@ The stepper is `flex flex-wrap` with `›` separators as standalone `<span>` ele
 ### GUEST-02 — Sticky header + virtual keyboard interaction
 **Route:** `/r/[slug]`
 **Screen:** All mobile (iOS Safari, Android Chrome)
-**Status:** 🔲 Not yet implemented
+**Status:** ✅ Fixed — `scroll-padding-top: 72px` added to `html` selector in `app/globals.css`
 
 The guest form header is `sticky top-0 z-10` (~72px tall). When a guest taps a field near the bottom of the form, the virtual keyboard rises ~300px. The browser scrolls the focused field into view but does not account for the sticky header. The focused field can end up visually obscured behind the header.
 
@@ -200,18 +200,18 @@ The success card uses `p-10` (40px all sides). On 320px that leaves only 240px c
 | DASH-01 | `/dashboard` | Filter tab buttons | All mobile | **High** | ✅ Fixed |
 | QR-01 | `/dashboard/qr` | Copy/Print buttons | All mobile | **High** | ✅ Fixed |
 | DETAIL-01 | `/dashboard/tickets/[id]` | Meta 3-col grid | All mobile | **High** | ✅ Fixed |
-| DASH-02 | `/dashboard` | Filter tab scroll hint | 320px | Medium | 🔲 Pending |
+| DASH-02 | `/dashboard` | Filter tab scroll hint | 320px | Medium | ✅ Fixed |
 | DASH-03 | `/dashboard` | Search input | All mobile | Medium | ✅ Fixed |
 | DASH-04 | `/dashboard` | Load More button | All mobile | Medium | ✅ Fixed |
 | DETAIL-02 | `/dashboard/tickets/[id]` | Status stepper wrap | ≤ 480px | Medium | ✅ Fixed |
 | DETAIL-03 | `/dashboard/tickets/[id]` | Save Note button | All mobile | Medium | ✅ Fixed |
 | QR-02 | `/dashboard/qr` | Header overflow | 320px | Medium | ✅ Fixed |
-| GUEST-01 | `/r/[slug]` | Issue type grid | 320px | Medium | 🔲 Pending |
-| GUEST-02 | `/r/[slug]` | Sticky header + keyboard | All mobile | Medium | 🔲 Pending |
+| GUEST-01 | `/r/[slug]` | Issue type grid | 320px | Medium | ✅ Fixed |
+| GUEST-02 | `/r/[slug]` | Sticky header + keyboard | All mobile | Medium | ✅ Fixed |
 | DASH-05 | `/dashboard` | Header restaurant name | ≤ 480px | Low | 🔲 Pending |
 | DASH-06 | `/dashboard` | Stat card subtitles | 375px | Low | 🔲 Pending |
 | DASH-07 | `/dashboard` | Ticket rows | 320px | Low | 🔲 Pending |
 | GUEST-03 | `/r/[slug]` | Header restaurant name | ≤ 375px | Low | 🔲 Pending |
 | GUEST-04 | `/r/[slug]` | Success card padding | 320px | Low | 🔲 Pending |
 
-**3 High (3 fixed) · 8 Medium · 5 Low**
+**3 High (3 fixed) · 8 Medium (8 fixed) · 5 Low pending**

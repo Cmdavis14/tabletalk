@@ -233,23 +233,26 @@ export default function DashboardClient({ restaurantId, restaurantName, restaura
                 className="w-full pl-8 pr-3 py-3 text-sm rounded-lg border border-slate-200 bg-slate-50 outline-none focus:border-[#009B9A] transition-colors"
               />
             </div>
-            <div className="flex items-center gap-1.5 overflow-x-auto -mx-1 px-1">
-              {(['All', 'New', 'In Progress', 'Resolved', 'Critical'] as const).map((f) => (
-                <button
-                  key={f}
-                  onClick={() => setActiveFilter(f)}
-                  className={cn(
-                    'shrink-0 px-3 py-2.5 rounded-lg text-xs font-medium transition-colors',
-                    activeFilter === f
-                      ? f === 'Critical'
-                        ? 'bg-red-500 text-white'
-                        : 'bg-[#07111F] text-white'
-                      : 'text-slate-500 hover:text-slate-800 hover:bg-slate-100'
-                  )}
-                >
-                  {f}
-                </button>
-              ))}
+            <div className="relative">
+              <div className="flex items-center gap-1.5 overflow-x-auto -mx-1 px-1">
+                {(['All', 'New', 'In Progress', 'Resolved', 'Critical'] as const).map((f) => (
+                  <button
+                    key={f}
+                    onClick={() => setActiveFilter(f)}
+                    className={cn(
+                      'shrink-0 px-3 py-2.5 rounded-lg text-xs font-medium transition-colors',
+                      activeFilter === f
+                        ? f === 'Critical'
+                          ? 'bg-red-500 text-white'
+                          : 'bg-[#07111F] text-white'
+                        : 'text-slate-500 hover:text-slate-800 hover:bg-slate-100'
+                    )}
+                  >
+                    {f}
+                  </button>
+                ))}
+              </div>
+              <div className="pointer-events-none absolute inset-y-0 right-0 w-8 bg-gradient-to-l from-white to-transparent" />
             </div>
           </div>
 
