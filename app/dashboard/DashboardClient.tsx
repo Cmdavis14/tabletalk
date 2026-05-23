@@ -22,6 +22,7 @@ interface Props {
 export default function DashboardClient({ restaurantId, restaurantName, restaurantLocation, restaurantSlug, initialTickets }: Props) {
   const [tickets, setTickets] = useState<Ticket[]>(initialTickets)
   const [, setTick] = useState(0)
+  const [activeFilter, setActiveFilter] = useState<'All' | 'New' | 'In Progress' | 'Resolved' | 'Critical'>('All')
 
   useEffect(() => {
     const id = setInterval(() => setTick((n) => n + 1), 60_000)
@@ -73,6 +74,12 @@ export default function DashboardClient({ restaurantId, restaurantName, restaura
   const stillHereOpen = tickets.filter(
     (t) => t.guestStatus === 'Still here' && t.status !== 'Resolved' && t.status !== 'Closed'
   )
+
+  const filteredTickets = activeFilter === 'All'
+    ? tickets
+    : activeFilter === 'Critical'
+      ? tickets.filter((t) => t.priority === 'Critical')
+      : tickets.filter((t) => t.status === activeFilter)
 
   const resolvedTypeCounts = resolvedToday.reduce<Record<string, number>>((acc, t) => {
     acc[t.type] = (acc[t.type] || 0) + 1
@@ -179,11 +186,33 @@ export default function DashboardClient({ restaurantId, restaurantName, restaura
 
         {/* Ticket list */}
         <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden">
-          <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
-            <h2 className="font-semibold text-slate-900">Guest Issues</h2>
-            <span className="text-xs text-slate-400 bg-slate-100 px-2.5 py-1 rounded-full">
-              {tickets.length} total
-            </span>
+          <div className="px-6 pt-4 pb-3 border-b border-slate-100">
+            <div className="flex items-center justify-between mb-3">
+              <h2 className="font-semibold text-slate-900">Guest Issues</h2>
+              <span className="text-xs text-slate-400 bg-slate-100 px-2.5 py-1 rounded-full">
+                {activeFilter === 'All'
+                  ? `${tickets.length} total`
+                  : `${filteredTickets.length} of ${tickets.length}`}
+              </span>
+            </div>
+            <div className="flex items-center gap-1.5 overflow-x-auto -mx-1 px-1">
+              {(['All', 'New', 'In Progress', 'Resolved', 'Critical'] as const).map((f) => (
+                <button
+                  key={f}
+                  onClick={() => setActiveFilter(f)}
+                  className={cn(
+                    'shrink-0 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors',
+                    activeFilter === f
+                      ? f === 'Critical'
+                        ? 'bg-red-500 text-white'
+                        : 'bg-[#07111F] text-white'
+                      : 'text-slate-500 hover:text-slate-800 hover:bg-slate-100'
+                  )}
+                >
+                  {f}
+                </button>
+              ))}
+            </div>
           </div>
 
           {tickets.length === 0 ? (
@@ -202,9 +231,19 @@ export default function DashboardClient({ restaurantId, restaurantName, restaura
                 Open guest form to test ↗
               </Link>
             </div>
+          ) : filteredTickets.length === 0 ? (
+            <div className="px-6 py-12 text-center">
+              <p className="text-sm font-medium text-slate-500">No {activeFilter.toLowerCase()} issues</p>
+              <button
+                onClick={() => setActiveFilter('All')}
+                className="text-xs text-[#009B9A] hover:underline mt-2 block mx-auto"
+              >
+                View all issues
+              </button>
+            </div>
           ) : (
             <div className="divide-y divide-slate-100">
-              {tickets.map((ticket) => {
+              {filteredTickets.map((ticket) => {
                 const pCfg = priorityConfig(ticket.priority)
                 const sCfg = statusConfig(ticket.status)
                 return (
