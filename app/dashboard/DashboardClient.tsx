@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
-import { MessageSquare, AlertTriangle, Users, CheckCircle2, ChevronRight, LogOut, Inbox } from 'lucide-react'
+import { MessageSquare, AlertTriangle, Users, CheckCircle2, ChevronRight, LogOut, Inbox, Search } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { dbToTicket } from '@/lib/db'
 import type { DbGuestIssue } from '@/lib/db'
@@ -23,6 +23,7 @@ export default function DashboardClient({ restaurantId, restaurantName, restaura
   const [tickets, setTickets] = useState<Ticket[]>(initialTickets)
   const [, setTick] = useState(0)
   const [activeFilter, setActiveFilter] = useState<'All' | 'New' | 'In Progress' | 'Resolved' | 'Critical'>('All')
+  const [searchQuery, setSearchQuery] = useState('')
 
   useEffect(() => {
     const id = setInterval(() => setTick((n) => n + 1), 60_000)
@@ -80,6 +81,19 @@ export default function DashboardClient({ restaurantId, restaurantName, restaura
     : activeFilter === 'Critical'
       ? tickets.filter((t) => t.priority === 'Critical')
       : tickets.filter((t) => t.status === activeFilter)
+
+  const displayedTickets = searchQuery.trim()
+    ? filteredTickets.filter((t) => {
+        const q = searchQuery.toLowerCase()
+        return (
+          t.type.toLowerCase().includes(q) ||
+          t.message.toLowerCase().includes(q) ||
+          t.table.toLowerCase().includes(q) ||
+          (t.customerName?.toLowerCase().includes(q) ?? false) ||
+          (t.customerEmail?.toLowerCase().includes(q) ?? false)
+        )
+      })
+    : filteredTickets
 
   const resolvedTypeCounts = resolvedToday.reduce<Record<string, number>>((acc, t) => {
     acc[t.type] = (acc[t.type] || 0) + 1
@@ -190,10 +204,22 @@ export default function DashboardClient({ restaurantId, restaurantName, restaura
             <div className="flex items-center justify-between mb-3">
               <h2 className="font-semibold text-slate-900">Guest Issues</h2>
               <span className="text-xs text-slate-400 bg-slate-100 px-2.5 py-1 rounded-full">
-                {activeFilter === 'All'
-                  ? `${tickets.length} total`
-                  : `${filteredTickets.length} of ${tickets.length}`}
+                {searchQuery.trim()
+                  ? `${displayedTickets.length} result${displayedTickets.length === 1 ? '' : 's'}`
+                  : activeFilter === 'All'
+                    ? `${tickets.length} total`
+                    : `${filteredTickets.length} of ${tickets.length}`}
               </span>
+            </div>
+            <div className="relative mb-3">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400 pointer-events-none" />
+              <input
+                type="search"
+                placeholder="Search by table, type, message, guest name or email…"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full pl-8 pr-3 py-2 text-sm rounded-lg border border-slate-200 bg-slate-50 outline-none focus:border-[#009B9A] transition-colors"
+              />
             </div>
             <div className="flex items-center gap-1.5 overflow-x-auto -mx-1 px-1">
               {(['All', 'New', 'In Progress', 'Resolved', 'Critical'] as const).map((f) => (
@@ -231,19 +257,21 @@ export default function DashboardClient({ restaurantId, restaurantName, restaura
                 Open guest form to test ↗
               </Link>
             </div>
-          ) : filteredTickets.length === 0 ? (
+          ) : displayedTickets.length === 0 ? (
             <div className="px-6 py-12 text-center">
-              <p className="text-sm font-medium text-slate-500">No {activeFilter.toLowerCase()} issues</p>
+              <p className="text-sm font-medium text-slate-500">
+                {searchQuery.trim() ? 'No results match your search' : `No ${activeFilter.toLowerCase()} issues`}
+              </p>
               <button
-                onClick={() => setActiveFilter('All')}
+                onClick={() => { setActiveFilter('All'); setSearchQuery('') }}
                 className="text-xs text-[#009B9A] hover:underline mt-2 block mx-auto"
               >
-                View all issues
+                Clear filters
               </button>
             </div>
           ) : (
             <div className="divide-y divide-slate-100">
-              {filteredTickets.map((ticket) => {
+              {displayedTickets.map((ticket) => {
                 const pCfg = priorityConfig(ticket.priority)
                 const sCfg = statusConfig(ticket.status)
                 return (

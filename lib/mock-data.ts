@@ -13,4 +13,6 @@ export interface Ticket {
   createdAt: string
   orderRef: string
   resolvedAt: string | null
+  customerName: string | null
+  customerEmail: string | null
 }

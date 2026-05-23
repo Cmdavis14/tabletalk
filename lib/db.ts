@@ -86,5 +86,7 @@ export function dbToTicket(issue: DbGuestIssue): Ticket {
     createdAt: issue.created_at,
     orderRef: issue.order_identifier ?? '—',
     resolvedAt: issue.resolved_at ?? null,
+    customerName: issue.customer_name ?? null,
+    customerEmail: issue.customer_email ?? null,
   }
 }
