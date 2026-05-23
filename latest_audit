@@ -1,0 +1,444 @@
+I now have everything I need. Let me write the full structured audit.
+
+TableTalk — Full Codebase Audit
+May 23, 2026 · Read-only inspection
+
+1. Project Architecture Overview
+App Structure
+
+app/
+  layout.tsx                     Root layout (Geist font, metadata)
+  page.tsx                       Landing page (Server Component, static)
+  dashboard/
+    page.tsx                     Dashboard (Server Component, fetches DB then passes to client)
+    DashboardClient.tsx          Dashboard interactive layer (Realtime, stats, ticket list)
+    actions.ts                   Server Actions: loginAction, logoutAction
+    login/
+      page.tsx                   Login form ('use client', useActionState)
+    tickets/[id]/
+      page.tsx                   Ticket detail ('use client', fetches Supabase directly)
+    qr/
+      page.tsx                   QR page (Server Component, fetches restaurant name)
+      QRClient.tsx               QR interactive layer (print, copy link)
+  r/[slug]/
+    page.tsx                     Guest submission form ('use client', public)
+  api/notify/
+    route.ts                     Email notification API (Resend)
+
+lib/
+  supabase.ts                    Singleton Supabase client
+  db.ts                          DB types, label maps, dbToTicket transformer
+  mock-data.ts                   Type definitions only (Ticket, Priority, Status, GuestStatus)
+  ticket-utils.ts                priorityConfig, statusConfig, timeAgo helpers
+  utils.ts                       cn() utility
+
+components/ui/                   shadcn/base-ui components (badge, button, card, alert, etc.)
+proxy.ts                         Root-level file — exports `proxy` function (NOT active middleware)
+Key Dependencies
+Next.js 16.2.6 (App Router, Server Actions, Server Components)
+React 19.2.4
+Supabase JS 2.105.4 — auth/DB
+Resend 6.12.3 — transactional email
+react-qr-code 2.0.21 — QR generation
+@base-ui/react 1.4.1 — primitives for shadcn components
+Tailwind CSS 4 + tw-animate-css
+Authentication Flow
+User visits /dashboard → (BROKEN: no middleware, no auth gate — see §3)
+/dashboard/login renders a password form
+Form calls loginAction (Server Action in actions.ts)
+Server Action compares submitted password to process.env.DASHBOARD_DEMO_PASSWORD
+On match, sets tabletalk_demo_auth cookie (httpOnly, sameSite=strict, 7-day)
+Redirects to /dashboard
+Nothing currently enforces this gate — middleware.ts was deleted and proxy.ts is not registered
+Dashboard Flow
+app/dashboard/page.tsx (Server Component) fetches restaurant + tickets from Supabase
+Renders DashboardClient with initialTickets prop
+DashboardClient establishes a Supabase Realtime subscription for live updates
+A 60-second interval forces re-render to keep timeAgo() strings fresh
+Ticket rows link to /dashboard/tickets/[id]
+Guest QR Flow
+Restaurant prints QR code from /dashboard/qr
+QR encodes ${NEXT_PUBLIC_APP_URL}/r/${slug}
+Guest scans → hits /r/[slug]
+Client component fetches restaurant by slug from Supabase
+Guest fills form, client directly calls supabase.from('guest_issues').insert(...)
+On success, fire-and-forget POST /api/notify
+Notification Flow
+Guest form POSTs JSON to /api/notify after successful DB insert
+Route reads RESEND_API_KEY, RESEND_FROM_EMAIL, NOTIFY_EMAIL
+Builds HTML email, sends via Resend
+Route is completely unauthenticated/public
+2. Route Inventory
+Route	Purpose	Protection	Issues
+/	Marketing landing page	Public	None
+/dashboard	Restaurant dashboard (all tickets)	Should be protected — currently unprotected	CRITICAL
+/dashboard/login	Password login form	Public	Intentional
+/dashboard/tickets/[id]	Ticket detail, status update, notes	Should be protected — currently unprotected	CRITICAL
+/dashboard/qr	QR code generation & print	Should be protected — currently unprotected	HIGH
+/r/[slug]	Guest issue submission form	Public	Intended; no rate limiting
+/api/notify	Email notification webhook	Fully public, no auth	HIGH
+3. Security Audit
+SEC-01 — CRITICAL: No Active Route Protection on Dashboard
+Severity: P0 Critical
+
+Files: middleware.ts (deleted), proxy.ts
+
+middleware.ts was deleted (confirmed by git status: D middleware.ts). In its place, proxy.ts exists at the root with this export:
+
+
+export function proxy(request: NextRequest) { ... }
+Next.js only recognizes a file named middleware.ts exporting a default function named middleware. The proxy.ts file is entirely inert — Next.js never calls it. Result: every dashboard route (/dashboard, /dashboard/tickets/[id], /dashboard/qr) is fully accessible by anyone without authentication.
+
+The login flow correctly creates a cookie, but nothing on the server ever checks it before serving dashboard pages.
+
+Suggested fix: Rename proxy.ts → middleware.ts and rename the export from proxy to middleware (default export). No logic changes needed — the auth logic is already correct.
+
+SEC-02 — CRITICAL: Live Credentials Committed in .env.local
+Severity: P0 Critical
+
+Files: .env.local
+
+.env.local contains real production secrets:
+
+Live Supabase project URL and anon key
+The actual dashboard demo password
+A live Resend API key
+The notification recipient email
+.env.local should never be committed to git. If this repo has a remote, these credentials are fully exposed in git history. All secrets should be considered compromised and rotated.
+
+Additionally there's a slug mismatch: NEXT_PUBLIC_DEMO_RESTAURANT_SLUG=goros-sushi-demo in the env file, but CLAUDE.md and app/page.tsx reference sol-smoke-kitchen as the demo restaurant.
+
+Suggested fix: Rotate all secrets immediately. Add .env.local to .gitignore. Create a .env.example with placeholder values.
+
+SEC-03 — HIGH: Cookie Value Stores the Actual Password
+Severity: P1 High
+
+Files: app/dashboard/actions.ts (lines 22–28)
+
+
+cookieStore.set('tabletalk_demo_auth', expected, { ... })
+The cookie value is set to expected — the actual plaintext password. Auth is verified by cookie.value !== expected. Anyone who can read the cookie (e.g., via browser devtools, a network intercept on non-HTTPS, or a log) now knows the password itself.
+
+Suggested fix: Store a secure constant token string (e.g. 'authenticated') or a HMAC of the password rather than the password itself.
+
+SEC-04 — HIGH: /api/notify is Fully Public
+Severity: P1 High
+
+Files: app/api/notify/route.ts
+
+The notify endpoint has no authentication check. Any person or bot can POST to /api/notify with arbitrary content and trigger emails to NOTIFY_EMAIL via the connected Resend account. This enables:
+
+Email spam / inbox flooding of the restaurant owner
+Resend quota exhaustion
+Potential Resend account suspension
+Suggested fix: Verify the request originates from the same origin (check Origin/Referer header), or add a shared secret header, or move this call to a Server Action that runs server-side after the Supabase insert.
+
+SEC-05 — HIGH: Ticket Detail Page Has No Auth Check
+Severity: P1 High
+
+Files: app/dashboard/tickets/[id]/page.tsx
+
+This page is 'use client' and directly calls supabase.from('guest_issues').update(...) for status and notes. Since the middleware is broken (SEC-01), anyone can:
+
+Navigate directly to /dashboard/tickets/{any-id}
+View guest PII (customer name, email, message)
+Update status and internal notes for any ticket
+The id comes from useParams() with no authorization check against which restaurant this ticket belongs to.
+
+Suggested fix: Fix middleware first (SEC-01). Additionally, add a server-side row-level ownership check or ensure Supabase RLS prevents cross-restaurant access.
+
+SEC-06 — MEDIUM: No Input Validation on API Route
+Severity: P2 Medium
+
+Files: app/api/notify/route.ts (lines 34–41)
+
+After parsing JSON, the route destructures fields directly with no type/schema validation:
+
+
+const { restaurantName, issueType, priority, guestStatus, tableNumber, message } = body
+If any field is missing or wrong type, the code continues and produces undefined values in the email. escapeHtml() is applied to string fields, which is correct for XSS, but there's no validation that body even has the expected shape.
+
+Suggested fix: Add a lightweight schema check (zod or manual null checks) before using the values.
+
+SEC-07 — MEDIUM: Guest Form Has No Server-Side Validation
+Severity: P2 Medium
+
+Files: app/r/[slug]/page.tsx (lines 62–113)
+
+Submission validation is entirely client-side (!selectedType || !message.trim()). The Supabase insert is called directly from the browser. A malicious actor bypassing the UI can:
+
+Insert garbage data (empty strings, invalid issue types, very long strings)
+Insert thousands of fake tickets for any known restaurant_id
+No rate limiting exists on either the form or the API route.
+
+Suggested fix: Add a Server Action for issue submission so validation runs server-side. Consider Supabase RLS to enforce field constraints. Rate-limiting via Vercel middleware or a simple IP-based check.
+
+SEC-08 — LOW: Supabase Anon Key Exposed Client-Side (By Design, but Verify RLS)
+Severity: P2 Low (risk depends on Supabase RLS config)
+
+Files: lib/supabase.ts
+
+NEXT_PUBLIC_SUPABASE_ANON_KEY is intentionally public. Security depends entirely on Supabase Row Level Security policies. If RLS is not correctly configured, the anon key allows reading/writing any table without auth. This can't be fully evaluated from the codebase alone.
+
+Suggested fix: Verify Supabase RLS is enabled on restaurants and guest_issues. At minimum: guest_issues should allow anonymous INSERT but restrict SELECT/UPDATE to authenticated sessions or service role only.
+
+SEC-09 — LOW: console.error Leaks Internal Details
+Severity: P3 Low
+
+Files: app/api/notify/route.ts (lines 104, 109, 111), app/r/[slug]/page.tsx (lines 107, 110)
+
+Server-side console.error with Resend error objects and raw client-side errors could log sensitive details (API keys in error objects, stack traces) to Vercel logs, which may be accessible to multiple team members.
+
+4. Technical Debt
+TD-01 — mock-data.ts Is Misnamed
+Severity: Low
+
+Files: lib/mock-data.ts
+
+Contains only TypeScript type definitions (Ticket, Priority, Status, GuestStatus) — no mock data whatsoever. The name suggests mock data that can be removed later; the types themselves are load-bearing and should be in a file like lib/types.ts.
+
+TD-02 — resolvedToday Counts All-Time Resolved, Not Today's
+Severity: Medium
+
+Files: app/dashboard/DashboardClient.tsx (line 68)
+
+
+const resolvedToday = tickets.filter((t) => t.status === 'Resolved')
+The variable is named resolvedToday and displayed in a "Resolved" stat card, but it has no date filter — it counts every resolved ticket since the beginning of time. For a restaurant that's been open for weeks, this number becomes meaningless.
+
+TD-03 — topResolvedType Logic Runs on Every Render
+Severity: Low
+
+Files: app/dashboard/DashboardClient.tsx (lines 73–81)
+
+The reduce + sort + Object.entries chain runs on every render, including the 60-second tick re-renders. This is minor now, but should be a useMemo.
+
+TD-04 — Closed Status Is a Dead-End
+Severity: Medium
+
+Files: lib/db.ts (line 54), app/dashboard/tickets/[id]/page.tsx (line 14)
+
+STATUS_LABELS includes Closed, and the Supabase schema presumably supports it, but STATUS_STEPS in the ticket detail page is:
+
+
+const STATUS_STEPS: Status[] = ['New', 'Seen', 'In Progress', 'Resolved']
+There is no way to set or transition to Closed from the UI. If a ticket arrives with status closed from the DB, statusConfig('Closed') works, but the stepper silently ignores it (STATUS_STEPS.indexOf('Closed') returns -1, making currentStepIndex = -1). The timeline rendering would be incorrect.
+
+TD-05 — Duplicate Header/Nav Markup Across Pages
+Severity: Low
+
+Files: app/dashboard/DashboardClient.tsx, app/dashboard/tickets/[id]/page.tsx, app/dashboard/qr/QRClient.tsx
+
+The dark bg-[#07111F] header with the TableTalk branding and back-navigation is reimplemented in each dashboard page. If branding or nav links change, each file needs updating independently.
+
+TD-06 — Hardcoded Color Values Throughout
+Severity: Low
+
+Files: Multiple
+
+Colors like #07111F, #009B9A, #DDFBFA, #9EECEB are hardcoded inline in dozens of places across every component. Tailwind CSS 4 supports CSS custom properties for this pattern; these should be design tokens.
+
+TD-07 — proxy.ts Is a Dead File
+Severity: Medium
+
+Files: proxy.ts
+
+This file is not imported by anything, not registered as middleware, and serves no purpose in the current build. It's a source of confusion — it looks like middleware, it has middleware-style logic, but it does nothing.
+
+TD-08 — No Pagination on Ticket List
+Severity: Medium (scaling concern)
+
+Files: app/dashboard/page.tsx (lines 27–32)
+
+
+const { data: issues } = await supabase
+  .from('guest_issues')
+  .select('*')
+  .eq('restaurant_id', restaurant.id)
+  .order('created_at', { ascending: false })
+No .limit() or .range(). At scale this fetches every ticket ever created for the restaurant. The Realtime subscription then tracks all of them in client memory.
+
+TD-09 — supabase.ts Throws at Module Load
+Severity: Low
+
+Files: lib/supabase.ts (line 6)
+
+
+if (!url || !key) throw new Error('[TableTalk] Missing Supabase environment variables')
+This throw happens at module evaluation time. In certain deployment/CI contexts (e.g., running next build without env vars set, or next lint), this will crash the entire module graph rather than producing a meaningful build error.
+
+TD-10 — shadcn Components Installed but Not Used in Main Flows
+Severity: Low
+
+Files: components/ui/
+
+badge.tsx, card.tsx, input.tsx, label.tsx, separator.tsx, textarea.tsx, alert.tsx, button.tsx — all shadcn components are installed. The main dashboard and guest form use none of them — they use raw <button>, <input>, <textarea> elements with inline Tailwind. This creates two parallel UI systems with no consistency guarantee.
+
+5. UX / Product Issues
+UX-01 — Dashboard Stat "Resolved" Is Misleading
+Files: app/dashboard/DashboardClient.tsx
+
+The "Resolved" count includes all-time resolved tickets (TD-02). A restaurant that opened yesterday and already resolved 50 tickets will show 50 forever, which conveys no operational signal.
+
+UX-02 — No Status Filter or Search on Dashboard
+Files: app/dashboard/DashboardClient.tsx
+
+The ticket list shows all tickets, mixed status, in creation order only. As issues accumulate, staff can't filter to "New only" or "Critical" or search by table number. This is the primary operational screen.
+
+UX-03 — No Pagination or "Load More" on Ticket List
+Files: app/dashboard/page.tsx
+
+Related to TD-08. The list has no visual end indicator, no page controls, and will grow indefinitely.
+
+UX-04 — resetForm() Resets Guest Status to Default
+Files: app/r/[slug]/page.tsx (line 123)
+
+
+// setGuestStatus is NOT reset in resetForm()
+Actually, resetForm() does NOT reset guestStatus to 'Still here' — but the initial useState default is 'Still here'. If a guest who already left submits and then hits "Submit another issue", the guestStatus retains their previous selection. This is technically correct behavior, but may not be intended.
+
+UX-05 — Ticket Detail Page Has No Auth-Redirect UI
+Files: app/dashboard/tickets/[id]/page.tsx
+
+With the middleware broken (SEC-01), unauthenticated users land on the ticket detail with full access. Even when middleware is restored, the page itself has no fallback UI for "you aren't logged in" — it would just flash the Supabase data.
+
+UX-06 — timeAgo() Has No Absolute Date Fallback
+Files: lib/ticket-utils.ts (lines 22–31)
+
+For tickets older than a few days, timeAgo() returns "3 days ago" with no hover tooltip or absolute timestamp. Staff reviewing old tickets can't tell the exact submission time.
+
+UX-07 — Save Note Button Disabled When Notes Are Empty (Even for Clearing)
+Files: app/dashboard/tickets/[id]/page.tsx (line 289)
+
+
+disabled={!notes.trim() || notesSaving}
+If a staff member wants to clear an existing note (delete its content), the button is disabled because !notes.trim() is true. They can't save an empty note to erase a previous one.
+
+UX-08 — Copyright Year Is Stale
+Files: app/page.tsx (line 148)
+
+
+<p className="text-sm text-slate-400">© 2025 TableTalk</p>
+Today is May 2026. The copyright year should be 2026 (or dynamic).
+
+UX-09 — No Loading Skeleton on Dashboard
+Files: app/dashboard/page.tsx
+
+The dashboard is a Server Component that synchronously awaits two Supabase queries before returning HTML. During a slow network/DB response, the user sees a blank page with no loading indicator. There's no loading.tsx file in the dashboard segment.
+
+UX-10 — Guest Form Has No Character Limit Hint on Message
+Files: app/r/[slug]/page.tsx
+
+The message textarea has no maxlength attribute and no character counter. If Supabase has a column length limit, a very long message will hit a DB error that surfaces as the generic "Something went wrong" message.
+
+6. Production Readiness
+PROD-01 — No loading.tsx or Suspense Boundaries
+Severity: Medium
+
+Next.js App Router supports loading.tsx files that show a skeleton during Server Component data fetching. None exist. The dashboard and QR pages do synchronous Supabase fetches with no loading fallback.
+
+PROD-02 — No Error Boundary
+Severity: Medium
+
+No error.tsx files exist in any route segment. If a component throws during render (e.g., Supabase returns malformed data, dbToTicket receives unexpected shape), the error propagates to Next.js's default error page with no graceful recovery or friendly message.
+
+PROD-03 — next.config.ts Is Empty
+Severity: Low
+
+Files: next.config.ts
+
+No security headers (CSP, X-Frame-Options, X-Content-Type-Options), no image domain configuration, no redirect rules. For a production app serving a dashboard and public guest form, basic security headers should be set.
+
+PROD-04 — RESEND_FROM_EMAIL Uses Sandbox Domain
+Files: .env.local
+
+RESEND_FROM_EMAIL=onboarding@resend.dev is Resend's shared sandbox domain, which has daily send limits and may have deliverability issues. Production needs a verified custom domain email.
+
+PROD-05 — No Rate Limiting Anywhere
+Severity: High
+
+Guest form: unlimited inserts to guest_issues per IP
+/api/notify: unlimited POST requests → unlimited emails
+Login form: unlimited password attempts (brute-force possible)
+No Vercel rate limiting, no middleware-based throttle, no Supabase rate limiting is configured in code.
+
+PROD-06 — Env Slug Mismatch
+Severity: Medium
+
+NEXT_PUBLIC_DEMO_RESTAURANT_SLUG=goros-sushi-demo (env) vs. sol-smoke-kitchen (CLAUDE.md, hardcoded fallback in multiple files). The app will try to query a restaurant with slug goros-sushi-demo but the fallback in code is sol-smoke-kitchen. Whichever restaurant doesn't exist in Supabase will cause the dashboard to show the error state.
+
+PROD-07 — No Monitoring or Alerting
+Severity: Medium
+
+No error tracking (Sentry, Axiom), no uptime monitoring, no structured logging. If the dashboard stops loading or emails stop sending, there's no automatic alert.
+
+PROD-08 — resolvedToday Count Will Inflate Over Time (Vanity Metric)
+Severity: Low
+
+As noted in TD-02, the Resolved counter grows unbounded. For a restaurant in month 3, it could show "847 Resolved" which looks like a bug to staff.
+
+7. Priority Task List
+P0 — Critical (Fix Before Any Production Traffic)
+#	Issue	Why It Matters	Suggested Fix	Files
+P0-1	Restore dashboard middleware	Dashboard is fully public right now — anyone on the internet can view all guest PII and modify any ticket	Rename proxy.ts → middleware.ts, change export from proxy to middleware default export	proxy.ts
+P0-2	Rotate all secrets in .env.local	Supabase key, password, and Resend key are exposed. If repo has any remote history these are fully compromised	Rotate Supabase anon key, change dashboard password, regenerate Resend API key. Add .env.local to .gitignore	.env.local
+P0-3	Add auth check to /api/notify	Anyone can spam the notification email and exhaust the Resend quota	Move notify call to a Server Action, or add an X-Internal-Token header check	app/api/notify/route.ts
+P1 — Important (Fix Before Sharing with Real Restaurants)
+#	Issue	Why It Matters	Suggested Fix	Files
+P1-1	Don't store password as cookie value	Cookie value IS the password — rotate the auth scheme	Store 'authenticated' (or HMAC) in cookie, not the password string	app/dashboard/actions.ts
+P1-2	Verify Supabase RLS policies	Entire security model depends on RLS being correct	Enable RLS on guest_issues and restaurants; anon key should only INSERT to guest_issues, not SELECT or UPDATE	Supabase dashboard
+P1-3	Add server-side validation to guest form	Currently bypassing client validations is trivial	Convert submission to a Server Action with field validation	app/r/[slug]/page.tsx
+P1-4	Add loading.tsx to dashboard segment	Blank page on slow load looks broken	Create app/dashboard/loading.tsx with skeleton	—
+P1-5	Add error.tsx to route segments	Unhandled render errors crash the page entirely	Create app/dashboard/error.tsx and app/error.tsx	—
+P1-6	Fix resolvedToday to be today-scoped	Misleading operational metric	Filter by resolved_at >= start of today	app/dashboard/DashboardClient.tsx
+P1-7	Add basic rate limiting to guest form + login	Brute-force login and ticket spam are possible	Vercel middleware rate limiting by IP, or Upstash Redis rate limiter	—
+P2 — Polish / Future Improvements
+#	Issue	Suggested Fix	Files
+P2-1	Rename proxy.ts remnant cleanup	After restoring middleware, delete or repurpose proxy.ts	proxy.ts
+P2-2	Rename mock-data.ts → types.ts	File only has types	lib/mock-data.ts
+P2-3	Add pagination to ticket list	.limit(50).range(offset, offset+49) + "Load more"	app/dashboard/page.tsx
+P2-4	Add status filter tabs to dashboard	"All / Open / Critical" tab row	app/dashboard/DashboardClient.tsx
+P2-5	Extract shared dashboard header component	Eliminate 3x duplicated dark header markup	app/dashboard/
+P2-6	Add security headers in next.config.ts	CSP, X-Frame-Options, HSTS	next.config.ts
+P2-7	Fix Closed status dead-end	Add Closed to STATUS_STEPS or remove from STATUS_LABELS	app/dashboard/tickets/[id]/page.tsx, lib/db.ts
+P2-8	Use Tailwind design tokens for brand colors	Replace #07111F/#009B9A literals with CSS vars	All UI files
+P2-9	Add timeAgo() title attribute with absolute ISO	Hover tooltip for exact timestamp	lib/ticket-utils.ts
+P2-10	Update copyright to 2026	Footer says © 2025	app/page.tsx
+P2-11	Create .env.example	No onboarding guide for env vars	—
+P2-12	Upgrade RESEND_FROM_EMAIL to custom domain	onboarding@resend.dev is sandbox	.env.local
+P2-13	Use shadcn components in main flows	Two parallel UI systems — raw elements vs shadcn	All pages
+P2-14	Allow saving empty notes (to clear)	Save Note button disabled when note is blank	app/dashboard/tickets/[id]/page.tsx
+P2-15	Add error monitoring (Sentry or Axiom)	Zero visibility into production errors	—
+Final Recommended Next 10 Tasks — Exact Execution Order
+
+ 1. [P0-1] Rename proxy.ts → middleware.ts, fix export name
+           Restore the auth gate. Unblocks everything else.
+    P0-1 complete
+
+ 2. [P0-2] Rotate all live secrets (Supabase key, dashboard password, Resend key)
+           Then add .env.local to .gitignore and create .env.example.
+
+ 3. [P0-3] Protect /api/notify from unauthenticated use
+           Move email trigger to a Server Action or add shared-secret header check.
+
+ 4. [P1-1] Fix cookie auth scheme — store 'authenticated' not the password string
+           Simple one-line change in actions.ts.
+
+ 5. [P1-2] Audit and confirm Supabase RLS policies
+           Guest anon key: INSERT only on guest_issues. No cross-restaurant SELECT.
+
+ 6. [P1-6] Fix resolvedToday to filter by today's date
+           Makes the dashboard stat operationally meaningful.
+
+ 7. [P1-4] Add app/dashboard/loading.tsx
+           Skeleton UI for the two Supabase fetches on the dashboard route.
+
+ 8. [P1-5] Add app/dashboard/error.tsx and app/error.tsx
+           Graceful error pages instead of blank crashes.
+
+ 9. [PROD-06] Fix slug mismatch — align env var with actual Supabase restaurant record
+              Confirm which slug is correct, update env or CLAUDE.md accordingly.
+
+10. [P2-4] Add status filter tabs to DashboardClient (All / Open / Critical)
+           Highest-value UX improvement for operational use.
+Summary: The single most dangerous issue is the deleted middleware.ts — the dashboard has zero protection right now. Combined with live secrets in the committed env file, this project is not safe to share publicly or deploy to real restaurant clients without the P0 fixes first. The underlying code quality is solid; the auth scaffolding just needs to be wired back up.

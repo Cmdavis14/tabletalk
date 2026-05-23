@@ -23,10 +23,12 @@ export default function TicketDetailPage() {
 
   const [currentStatus, setCurrentStatus] = useState<Status>('New')
   const [statusSaving, setStatusSaving] = useState(false)
+  const [statusError, setStatusError] = useState<string | null>(null)
 
   const [notes, setNotes] = useState('')
   const [notesSaving, setNotesSaving] = useState(false)
   const [notesSaved, setNotesSaved] = useState(false)
+  const [notesError, setNotesError] = useState<string | null>(null)
 
   useEffect(() => {
     async function fetchIssue() {
@@ -50,24 +52,35 @@ export default function TicketDetailPage() {
 
   async function handleStatusChange(newStatus: Status) {
     if (!issue) return
+    const previousStatus = currentStatus
     setCurrentStatus(newStatus)
     setStatusSaving(true)
+    setStatusError(null)
 
     const dbStatus = STATUS_TO_DB[newStatus] ?? 'new'
     const updates: Record<string, unknown> = { status: dbStatus }
     if (newStatus === 'Resolved') updates.resolved_at = new Date().toISOString()
 
-    await supabase.from('guest_issues').update(updates).eq('id', issue.id)
+    const { error } = await supabase.from('guest_issues').update(updates).eq('id', issue.id)
     setStatusSaving(false)
+    if (error) {
+      setCurrentStatus(previousStatus)
+      setStatusError('Failed to update status. Try again.')
+    }
   }
 
   async function handleSaveNote() {
     if (!issue) return
     setNotesSaving(true)
-    await supabase.from('guest_issues').update({ internal_notes: notes }).eq('id', issue.id)
+    setNotesError(null)
+    const { error } = await supabase.from('guest_issues').update({ internal_notes: notes }).eq('id', issue.id)
     setNotesSaving(false)
-    setNotesSaved(true)
-    setTimeout(() => setNotesSaved(false), 2000)
+    if (error) {
+      setNotesError('Failed to save note. Try again.')
+    } else {
+      setNotesSaved(true)
+      setTimeout(() => setNotesSaved(false), 2000)
+    }
   }
 
   if (loading) {
@@ -213,6 +226,9 @@ export default function TicketDetailPage() {
                 : [<span key={`sep-${idx}`} className="text-slate-300 select-none text-sm">›</span>, btn]
             })}
           </div>
+          {statusError && (
+            <p className="mt-3 text-sm text-red-500">{statusError}</p>
+          )}
         </div>
 
         {/* Timeline */}
@@ -282,6 +298,9 @@ export default function TicketDetailPage() {
               </span>
             )}
           </div>
+          {notesError && (
+            <p className="mt-2 text-sm text-red-500">{notesError}</p>
+          )}
         </div>
       </main>
     </div>

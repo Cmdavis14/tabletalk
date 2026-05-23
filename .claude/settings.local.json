@@ -4,7 +4,19 @@
       "Bash(npm --version)",
       "Bash(npx create-next-app@latest _setup --typescript --tailwind --app --eslint --no-src-dir --import-alias \"@/*\" --yes)",
       "Bash(next build *)",
-      "Bash(npx next *)"
+      "Bash(npx next *)",
+      "Bash(npx tsc *)",
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)",
+      "Bash(git push *)",
+      "Bash(node -e \"console.log\\(require\\('./node_modules/next/package.json'\\).version\\)\")",
+      "Bash(node -e \"console.log\\(require\\('./node_modules/resend/package.json'\\).version\\)\")",
+      "Bash(node -e \"console.log\\('next:', require\\('./node_modules/next/package.json'\\).version, '| resend:', require\\('./node_modules/resend/package.json'\\).version\\)\")",
+      "Bash(Remove-Item *)",
+      "PowerShell(Get-ChildItem -Path \"D:\\\\Dashboard\" -Recurse -File | Where-Object {$_.Extension -in @\\('.ts', '.tsx', '.css', '.json', '.mjs'\\)} | Select-Object FullName | Sort-Object FullName)",
+      "Bash(node -e ' *)",
+      "PowerShell(Get-Item *)",
+      "PowerShell(\\(Get-Item \"D:\\\\TableTalk\\\\latest_audit\"\\).Length; Get-Content \"D:\\\\TableTalk\\\\latest_audit\" -Raw)"
     ]
   }
 }
