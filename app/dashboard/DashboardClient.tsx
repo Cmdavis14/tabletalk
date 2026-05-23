@@ -226,7 +226,11 @@ export default function DashboardClient({ restaurantId, restaurantName, restaura
                 placeholder="Search by table, type, message, guest name or email…"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-8 pr-3 py-2 text-sm rounded-lg border border-slate-200 bg-slate-50 outline-none focus:border-[#009B9A] transition-colors"
+                autoComplete="off"
+                autoCorrect="off"
+                autoCapitalize="none"
+                spellCheck={false}
+                className="w-full pl-8 pr-3 py-3 text-sm rounded-lg border border-slate-200 bg-slate-50 outline-none focus:border-[#009B9A] transition-colors"
               />
             </div>
             <div className="flex items-center gap-1.5 overflow-x-auto -mx-1 px-1">
@@ -322,10 +326,10 @@ export default function DashboardClient({ restaurantId, restaurantName, restaura
                 })}
               </div>
               {hasMore && (
-                <div className="px-6 py-4 border-t border-slate-100 text-center">
+                <div className="px-6 py-4 border-t border-slate-100">
                   <button
                     onClick={() => setVisibleCount((n) => n + 25)}
-                    className="text-sm text-slate-500 hover:text-slate-900 border border-slate-200 hover:border-slate-400 px-4 py-2 rounded-lg transition-colors"
+                    className="w-full text-sm text-slate-500 hover:text-slate-900 border border-slate-200 hover:border-slate-400 px-4 py-3 rounded-lg transition-colors"
                   >
                     Load more · {displayedTickets.length - visibleCount} remaining
                   </button>

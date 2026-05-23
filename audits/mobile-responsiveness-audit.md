@@ -58,7 +58,7 @@ Five tabs at current widths total ~310px. On 320px viewport with `px-6` = 272px 
 ### DASH-03 — Search input: tap target and mobile keyboard behavior
 **Route:** `/dashboard`
 **Screen:** All mobile
-**Status:** 🔲 Not yet implemented
+**Status:** ✅ Fixed — `py-2` → `py-3`, added `autoComplete/autoCorrect/autoCapitalize/spellCheck` attrs in `DashboardClient.tsx`
 
 Two problems together:
 1. `py-2` = ~32px input height, below 44px minimum.
@@ -71,7 +71,7 @@ Two problems together:
 ### DASH-04 — Load More button: tap target too small
 **Route:** `/dashboard`
 **Screen:** All mobile
-**Status:** 🔲 Not yet implemented
+**Status:** ✅ Fixed — `py-2` → `py-3`, `w-full` added, removed `text-center` from wrapper in `DashboardClient.tsx`
 
 `py-2` = ~32px. The button is also narrow (content-width only, centered). A small tap target at the bottom of a scrolled list is the worst place for one.
 
@@ -104,7 +104,7 @@ The stepper is `flex flex-wrap` with `›` separators as standalone `<span>` ele
 ### QR-02 — QR header: overflow risk on 320px
 **Route:** `/dashboard/qr`
 **Screen:** 320px
-**Status:** 🔲 Not yet implemented
+**Status:** ✅ Fixed — "Copy link" and "Copied" text wrapped in `<span className="hidden sm:inline">` in `QRClient.tsx`
 
 "← Dashboard" (~95px) + "Copy link" with icon (~85px) + "Print" with icon (~65px) + gaps + `px-6` = ~269px against 272px usable. Any user-set font size increase, browser zoom, or longer restaurant name will break this. "Copy link" is also redundant on mobile since sharing is handled via the OS share sheet.
 
@@ -201,11 +201,11 @@ The success card uses `p-10` (40px all sides). On 320px that leaves only 240px c
 | QR-01 | `/dashboard/qr` | Copy/Print buttons | All mobile | **High** | ✅ Fixed |
 | DETAIL-01 | `/dashboard/tickets/[id]` | Meta 3-col grid | All mobile | **High** | ✅ Fixed |
 | DASH-02 | `/dashboard` | Filter tab scroll hint | 320px | Medium | 🔲 Pending |
-| DASH-03 | `/dashboard` | Search input | All mobile | Medium | 🔲 Pending |
-| DASH-04 | `/dashboard` | Load More button | All mobile | Medium | 🔲 Pending |
+| DASH-03 | `/dashboard` | Search input | All mobile | Medium | ✅ Fixed |
+| DASH-04 | `/dashboard` | Load More button | All mobile | Medium | ✅ Fixed |
 | DETAIL-02 | `/dashboard/tickets/[id]` | Status stepper wrap | ≤ 480px | Medium | 🔲 Pending |
 | DETAIL-03 | `/dashboard/tickets/[id]` | Save Note button | All mobile | Medium | 🔲 Pending |
-| QR-02 | `/dashboard/qr` | Header overflow | 320px | Medium | 🔲 Pending |
+| QR-02 | `/dashboard/qr` | Header overflow | 320px | Medium | ✅ Fixed |
 | GUEST-01 | `/r/[slug]` | Issue type grid | 320px | Medium | 🔲 Pending |
 | GUEST-02 | `/r/[slug]` | Sticky header + keyboard | All mobile | Medium | 🔲 Pending |
 | DASH-05 | `/dashboard` | Header restaurant name | ≤ 480px | Low | 🔲 Pending |

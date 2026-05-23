@@ -40,9 +40,9 @@ export default function QRClient({ restaurantName, guestUrl }: Props) {
               className="flex items-center gap-1.5 text-sm text-slate-300 hover:text-white border border-slate-700 hover:border-slate-500 px-3 py-2.5 rounded-lg transition-colors"
             >
               {copied ? (
-                <><CheckCircle2 className="w-3.5 h-3.5 text-[#009B9A]" /> Copied</>
+                <><CheckCircle2 className="w-3.5 h-3.5 text-[#009B9A]" /><span className="hidden sm:inline">Copied</span></>
               ) : (
-                <><Copy className="w-3.5 h-3.5" /> Copy link</>
+                <><Copy className="w-3.5 h-3.5" /><span className="hidden sm:inline">Copy link</span></>
               )}
             </button>
             <button
