@@ -9,8 +9,8 @@ import {
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { supabase } from '@/lib/supabase'
-import { ISSUE_TYPE_TO_DB, ISSUE_PRIORITY_MAP } from '@/lib/db'
 import type { DbRestaurant } from '@/lib/db'
+import { submitIssue } from './actions'
 
 const ISSUE_TYPES = [
   { label: 'Food problem',       Icon: Utensils    },
@@ -66,49 +66,24 @@ export default function GuestSubmissionPage() {
     setSubmitting(true)
     setSubmitError(null)
 
-    const dbIssueType = ISSUE_TYPE_TO_DB[selectedType] ?? 'other'
-    const dbPriority = ISSUE_PRIORITY_MAP[dbIssueType] ?? 'medium'
-
-    const { error } = await supabase.from('guest_issues').insert({
-      restaurant_id: restaurant.id,
-      issue_type: dbIssueType,
-      priority: dbPriority,
-      status: 'new',
-      is_guest_still_here: guestStatus === 'Still here',
-      table_number: tableNumber || null,
-      order_identifier: orderRef || null,
-      message: message || null,
-      customer_name: contactName || null,
-      customer_email: contactEmail || null,
+    const result = await submitIssue({
+      restaurantId: restaurant.id,
+      restaurantName: restaurant.name,
+      selectedType,
+      guestStatus,
+      tableNumber,
+      orderRef,
+      message,
+      contactName,
+      contactEmail,
     })
 
     setSubmitting(false)
 
-    if (error) {
-      setSubmitError('Something went wrong. Please try again.')
+    if (result.error) {
+      setSubmitError(result.error)
     } else {
       setSubmitted(true)
-
-      // Fire-and-forget — guest success screen is already shown, email is best-effort
-      fetch('/api/notify', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          restaurantName: restaurant.name,
-          issueType: selectedType,
-          priority: dbPriority.charAt(0).toUpperCase() + dbPriority.slice(1),
-          guestStatus,
-          tableNumber: tableNumber || null,
-          message: message || null,
-        }),
-      }).then(async (res) => {
-        if (!res.ok) {
-          const body = await res.json().catch(() => ({}))
-          console.error('[TableTalk] Email notification failed:', body)
-        }
-      }).catch((err) => {
-        console.error('[TableTalk] Email notification request failed:', err)
-      })
     }
   }
 
