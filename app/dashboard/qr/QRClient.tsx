@@ -37,7 +37,7 @@ export default function QRClient({ restaurantName, guestUrl }: Props) {
           <div className="flex items-center gap-3">
             <button
               onClick={handleCopy}
-              className="flex items-center gap-1.5 text-sm text-slate-300 hover:text-white border border-slate-700 hover:border-slate-500 px-3 py-1.5 rounded-lg transition-colors"
+              className="flex items-center gap-1.5 text-sm text-slate-300 hover:text-white border border-slate-700 hover:border-slate-500 px-3 py-2.5 rounded-lg transition-colors"
             >
               {copied ? (
                 <><CheckCircle2 className="w-3.5 h-3.5 text-[#009B9A]" /> Copied</>
@@ -47,7 +47,7 @@ export default function QRClient({ restaurantName, guestUrl }: Props) {
             </button>
             <button
               onClick={handlePrint}
-              className="flex items-center gap-2 text-sm bg-[#009B9A] hover:bg-[#008786] text-white px-4 py-1.5 rounded-lg transition-colors"
+              className="flex items-center gap-2 text-sm bg-[#009B9A] hover:bg-[#008786] text-white px-4 py-3 rounded-lg transition-colors"
             >
               <Printer className="w-3.5 h-3.5" /> Print
             </button>

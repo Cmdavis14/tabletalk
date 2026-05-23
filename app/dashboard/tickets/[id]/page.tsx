@@ -157,7 +157,7 @@ export default function TicketDetailPage() {
           </div>
 
           {/* Meta */}
-          <div className="grid grid-cols-3 gap-4 text-sm">
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 text-sm">
             <div>
               <p className="text-xs text-slate-400 mb-1 flex items-center gap-1">
                 <User className="w-3 h-3" /> Guest status

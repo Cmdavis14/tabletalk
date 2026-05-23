@@ -235,7 +235,7 @@ export default function DashboardClient({ restaurantId, restaurantName, restaura
                   key={f}
                   onClick={() => setActiveFilter(f)}
                   className={cn(
-                    'shrink-0 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors',
+                    'shrink-0 px-3 py-2.5 rounded-lg text-xs font-medium transition-colors',
                     activeFilter === f
                       ? f === 'Critical'
                         ? 'bg-red-500 text-white'
