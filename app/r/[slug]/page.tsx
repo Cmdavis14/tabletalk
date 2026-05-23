@@ -120,7 +120,7 @@ export default function GuestSubmissionPage() {
   if (submitted) {
     return (
       <div className="min-h-screen bg-slate-50 flex items-center justify-center px-6">
-        <div className="max-w-sm w-full bg-white rounded-3xl border border-slate-200 shadow-sm p-10 text-center">
+        <div className="max-w-sm w-full bg-white rounded-3xl border border-slate-200 shadow-sm p-6 sm:p-10 text-center">
           <div className="w-16 h-16 bg-[#DDFBFA] rounded-full flex items-center justify-center mx-auto mb-5">
             <CheckCircle2 className="w-8 h-8 text-[#009B9A]" />
           </div>
@@ -152,9 +152,9 @@ export default function GuestSubmissionPage() {
           <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-[#07111F] to-[#009B9A] flex items-center justify-center">
             <MessageSquare className="w-3.5 h-3.5 text-white" />
           </div>
-          <div>
-            <p className="font-semibold text-sm text-slate-900 leading-none">{restaurant.name}</p>
-            <p className="text-xs text-slate-400 mt-0.5">{restaurant.location}</p>
+          <div className="min-w-0">
+            <p className="font-semibold text-sm text-slate-900 leading-none truncate">{restaurant.name}</p>
+            <p className="text-xs text-slate-400 mt-0.5 truncate">{restaurant.location}</p>
           </div>
         </div>
       </header>

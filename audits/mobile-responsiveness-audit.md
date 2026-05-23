@@ -141,7 +141,7 @@ The guest form header is `sticky top-0 z-10` (~72px tall). When a guest taps a f
 ### DASH-05 — Dashboard header: restaurant name has no overflow protection
 **Route:** `/dashboard`
 **Screen:** ≤ 480px with long names
-**Status:** 🔲 Not yet implemented
+**Status:** ✅ Fixed — `min-w-0` on name container, `truncate` on name and subtitle `<p>` in `DashboardClient.tsx`
 
 The restaurant name and subtitle `<div>` has no `min-w-0` and the `<p>` has no `truncate`. A long restaurant name with the right-side nav (QR Code + Logout) causes the flex row to overflow or wrap, breaking the header height.
 
@@ -152,7 +152,7 @@ The restaurant name and subtitle `<div>` has no `min-w-0` and the `<p>` has no `
 ### DASH-06 — Stat card subtitles: inconsistent card heights at 2-col layout
 **Route:** `/dashboard`
 **Screen:** 375px
-**Status:** 🔲 Not yet implemented
+**Status:** ✅ Fixed — shortened "Guests Here" subtitles: "With open issues · act now" → "With open issues", "No open issues on-site" → "No open issues" in `DashboardClient.tsx`
 
 At 2-column layout, each stat card is ~165px wide with `p-5`. Long subtitles like "With open issues · act now" and "No open issues on-site" wrap to 2 lines, making cards in the same row differ in height — visually uneven.
 
@@ -163,7 +163,7 @@ At 2-column layout, each stat card is ~165px wide with `p-5`. Long subtitles lik
 ### DASH-07 — Ticket rows: badge stack cramped at 320px
 **Route:** `/dashboard`
 **Screen:** 320px
-**Status:** 🔲 Not yet implemented
+**Status:** ✅ Fixed — `px-6` → `px-4 sm:px-6` on ticket row links in `DashboardClient.tsx`
 
 Ticket rows are `flex items-center gap-4 px-6`. The meta column + chevron take ~80px, leaving main content ~160px on 320px. When a ticket has all three badges ("Still here" + priority + status), the `flex-wrap` badge row stacks 2–3 lines and the row becomes disproportionately tall.
 
@@ -174,7 +174,7 @@ Ticket rows are `flex items-center gap-4 px-6`. The meta column + chevron take ~
 ### GUEST-03 — Guest form header: restaurant name has no truncation
 **Route:** `/r/[slug]`
 **Screen:** ≤ 375px with long names
-**Status:** 🔲 Not yet implemented
+**Status:** ✅ Fixed — `min-w-0` on name container, `truncate` on name and location `<p>` in `r/[slug]/page.tsx`
 
 `<p className="font-semibold text-sm ...">` has no `truncate`. For the guest-facing sticky header, a two-line restaurant name increases the header height and shifts the whole page scroll offset.
 
@@ -185,7 +185,7 @@ Ticket rows are `flex items-center gap-4 px-6`. The meta column + chevron take ~
 ### GUEST-04 — Success screen: `p-10` padding too large at 320px
 **Route:** `/r/[slug]` (post-submit state)
 **Screen:** 320px
-**Status:** 🔲 Not yet implemented
+**Status:** ✅ Fixed — `p-10` → `p-6 sm:p-10` on success card in `r/[slug]/page.tsx`
 
 The success card uses `p-10` (40px all sides). On 320px that leaves only 240px content width — text wraps tightly and the layout looks cramped.
 
@@ -208,10 +208,10 @@ The success card uses `p-10` (40px all sides). On 320px that leaves only 240px c
 | QR-02 | `/dashboard/qr` | Header overflow | 320px | Medium | ✅ Fixed |
 | GUEST-01 | `/r/[slug]` | Issue type grid | 320px | Medium | ✅ Fixed |
 | GUEST-02 | `/r/[slug]` | Sticky header + keyboard | All mobile | Medium | ✅ Fixed |
-| DASH-05 | `/dashboard` | Header restaurant name | ≤ 480px | Low | 🔲 Pending |
-| DASH-06 | `/dashboard` | Stat card subtitles | 375px | Low | 🔲 Pending |
-| DASH-07 | `/dashboard` | Ticket rows | 320px | Low | 🔲 Pending |
-| GUEST-03 | `/r/[slug]` | Header restaurant name | ≤ 375px | Low | 🔲 Pending |
-| GUEST-04 | `/r/[slug]` | Success card padding | 320px | Low | 🔲 Pending |
+| DASH-05 | `/dashboard` | Header restaurant name | ≤ 480px | Low | ✅ Fixed |
+| DASH-06 | `/dashboard` | Stat card subtitles | 375px | Low | ✅ Fixed |
+| DASH-07 | `/dashboard` | Ticket rows | 320px | Low | ✅ Fixed |
+| GUEST-03 | `/r/[slug]` | Header restaurant name | ≤ 375px | Low | ✅ Fixed |
+| GUEST-04 | `/r/[slug]` | Success card padding | 320px | Low | ✅ Fixed |
 
-**3 High (3 fixed) · 8 Medium (8 fixed) · 5 Low pending**
+**3 High ✅ · 8 Medium ✅ · 5 Low ✅ — All 16 issues resolved**

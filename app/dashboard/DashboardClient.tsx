@@ -121,11 +121,11 @@ export default function DashboardClient({ restaurantId, restaurantName, restaura
             <div className="w-8 h-8 rounded-xl bg-[#009B9A] flex items-center justify-center">
               <MessageSquare className="w-4 h-4 text-white" />
             </div>
-            <div>
-              <p className="font-semibold text-white leading-none group-hover:text-slate-200 transition-colors">
+            <div className="min-w-0">
+              <p className="font-semibold text-white leading-none group-hover:text-slate-200 transition-colors truncate">
                 {restaurantName}
               </p>
-              <p className="text-xs text-slate-400 mt-0.5">
+              <p className="text-xs text-slate-400 mt-0.5 truncate">
                 {restaurantLocation ? `${restaurantLocation} · ` : ''}Guest Issue Desk
               </p>
             </div>
@@ -191,7 +191,7 @@ export default function DashboardClient({ restaurantId, restaurantName, restaura
             </div>
             <p className="text-3xl font-bold text-slate-900">{stillHereOpen.length}</p>
             <p className="text-xs text-slate-500 mt-1">
-              {stillHereOpen.length > 0 ? 'With open issues · act now' : 'No open issues on-site'}
+              {stillHereOpen.length > 0 ? 'With open issues' : 'No open issues'}
             </p>
           </div>
 
@@ -295,7 +295,7 @@ export default function DashboardClient({ restaurantId, restaurantName, restaura
                       key={ticket.id}
                       href={`/dashboard/tickets/${ticket.id}`}
                       className={cn(
-                        'flex items-center gap-4 px-6 py-4 hover:bg-slate-50 transition-colors group border-l-2',
+                        'flex items-center gap-4 px-4 sm:px-6 py-4 hover:bg-slate-50 transition-colors group border-l-2',
                         ticket.priority === 'Critical' ? 'border-l-red-400' : 'border-l-transparent'
                       )}
                     >
