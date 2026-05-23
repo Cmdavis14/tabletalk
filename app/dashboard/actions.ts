@@ -19,7 +19,7 @@ export async function loginAction(
   }
 
   const cookieStore = await cookies()
-  cookieStore.set('tabletalk_demo_auth', expected, {
+  cookieStore.set('tabletalk_demo_auth', 'authenticated', {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
     sameSite: 'strict',

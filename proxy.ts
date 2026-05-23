@@ -6,9 +6,8 @@ export function proxy(request: NextRequest) {
 
   if (pathname.startsWith('/dashboard') && !pathname.startsWith('/dashboard/login')) {
     const cookie = request.cookies.get('tabletalk_demo_auth')
-    const expected = process.env.DASHBOARD_DEMO_PASSWORD
 
-    if (!cookie || !expected || cookie.value !== expected) {
+    if (cookie?.value !== 'authenticated') {
       const loginUrl = new URL('/dashboard/login', request.url)
       return NextResponse.redirect(loginUrl)
     }
