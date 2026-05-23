@@ -287,7 +287,7 @@ export default function TicketDetailPage() {
           <div className="flex items-center gap-3 mt-3">
             <button
               onClick={handleSaveNote}
-              disabled={!notes.trim() || notesSaving}
+              disabled={notesSaving || notes === (issue?.internal_notes ?? '')}
               className="text-sm bg-[#07111F] hover:bg-[#0B1220] text-white px-4 py-2 rounded-xl transition-colors font-medium disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-2"
             >
               {notesSaving ? <><Loader2 className="w-3.5 h-3.5 animate-spin" /> Saving…</> : 'Save note'}
