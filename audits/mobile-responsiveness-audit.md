@@ -82,7 +82,7 @@ Two problems together:
 ### DETAIL-02 — Status stepper: separator `›` orphans on line wrap
 **Route:** `/dashboard/tickets/[id]`
 **Screen:** ≤ 480px
-**Status:** 🔲 Not yet implemented
+**Status:** ✅ Fixed — removed `flex-wrap`, added `overflow-x-auto -mx-1 px-1 pb-1`, added `shrink-0` to both buttons and separators in `tickets/[id]/page.tsx`
 
 The stepper is `flex flex-wrap` with `›` separators as standalone `<span>` elements between buttons. On narrow screens buttons wrap to a new line but separators do not logically attach — a `›` can appear at the end of line 1 or start of line 2, making the progression visually incoherent. On 375px, all four buttons + separators + gaps ≈ 347px against ~327px available — a wrap is likely.
 
@@ -93,7 +93,7 @@ The stepper is `flex flex-wrap` with `›` separators as standalone `<span>` ele
 ### DETAIL-03 — Save Note button: tap target too small
 **Route:** `/dashboard/tickets/[id]`
 **Screen:** All mobile
-**Status:** 🔲 Not yet implemented
+**Status:** ✅ Fixed — `py-2` → `py-3` on Save Note button in `tickets/[id]/page.tsx`
 
 `py-2` on the Save Note button = ~32px. Staff updating notes while holding a tablet or phone in one hand will frequently miss this.
 
@@ -203,8 +203,8 @@ The success card uses `p-10` (40px all sides). On 320px that leaves only 240px c
 | DASH-02 | `/dashboard` | Filter tab scroll hint | 320px | Medium | 🔲 Pending |
 | DASH-03 | `/dashboard` | Search input | All mobile | Medium | ✅ Fixed |
 | DASH-04 | `/dashboard` | Load More button | All mobile | Medium | ✅ Fixed |
-| DETAIL-02 | `/dashboard/tickets/[id]` | Status stepper wrap | ≤ 480px | Medium | 🔲 Pending |
-| DETAIL-03 | `/dashboard/tickets/[id]` | Save Note button | All mobile | Medium | 🔲 Pending |
+| DETAIL-02 | `/dashboard/tickets/[id]` | Status stepper wrap | ≤ 480px | Medium | ✅ Fixed |
+| DETAIL-03 | `/dashboard/tickets/[id]` | Save Note button | All mobile | Medium | ✅ Fixed |
 | QR-02 | `/dashboard/qr` | Header overflow | 320px | Medium | ✅ Fixed |
 | GUEST-01 | `/r/[slug]` | Issue type grid | 320px | Medium | 🔲 Pending |
 | GUEST-02 | `/r/[slug]` | Sticky header + keyboard | All mobile | Medium | 🔲 Pending |

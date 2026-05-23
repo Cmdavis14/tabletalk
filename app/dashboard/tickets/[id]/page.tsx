@@ -204,7 +204,7 @@ export default function TicketDetailPage() {
         <div className="bg-white rounded-2xl border border-slate-200 p-6">
           <h2 className="font-semibold text-slate-900 mb-1">Update Status</h2>
           <p className="text-xs text-slate-400 mb-4">Move the issue forward as your team handles it.</p>
-          <div className="flex items-center gap-1.5 flex-wrap">
+          <div className="flex items-center gap-1.5 overflow-x-auto -mx-1 px-1 pb-1">
             {STATUS_STEPS.flatMap((s, idx) => {
               const btn = (
                 <button
@@ -212,7 +212,7 @@ export default function TicketDetailPage() {
                   onClick={() => handleStatusChange(s)}
                   disabled={statusSaving}
                   className={cn(
-                    'px-4 py-2.5 rounded-xl text-sm font-medium border transition-all disabled:opacity-60 disabled:cursor-not-allowed',
+                    'shrink-0 px-4 py-2.5 rounded-xl text-sm font-medium border transition-all disabled:opacity-60 disabled:cursor-not-allowed',
                     currentStatus === s
                       ? 'bg-[#009B9A] text-white border-[#009B9A] shadow-sm'
                       : 'bg-white text-slate-600 border-slate-200 hover:border-slate-400 hover:bg-slate-50'
@@ -223,7 +223,7 @@ export default function TicketDetailPage() {
               )
               return idx === 0
                 ? [btn]
-                : [<span key={`sep-${idx}`} className="text-slate-300 select-none text-sm">›</span>, btn]
+                : [<span key={`sep-${idx}`} className="shrink-0 text-slate-300 select-none text-sm">›</span>, btn]
             })}
           </div>
           {statusError && (
@@ -288,7 +288,7 @@ export default function TicketDetailPage() {
             <button
               onClick={handleSaveNote}
               disabled={notesSaving || notes === (issue?.internal_notes ?? '')}
-              className="text-sm bg-[#07111F] hover:bg-[#0B1220] text-white px-4 py-2 rounded-xl transition-colors font-medium disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-2"
+              className="text-sm bg-[#07111F] hover:bg-[#0B1220] text-white px-4 py-3 rounded-xl transition-colors font-medium disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-2"
             >
               {notesSaving ? <><Loader2 className="w-3.5 h-3.5 animate-spin" /> Saving…</> : 'Save note'}
             </button>
