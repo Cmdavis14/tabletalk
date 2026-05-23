@@ -24,6 +24,7 @@ export default function DashboardClient({ restaurantId, restaurantName, restaura
   const [, setTick] = useState(0)
   const [activeFilter, setActiveFilter] = useState<'All' | 'New' | 'In Progress' | 'Resolved' | 'Critical'>('All')
   const [searchQuery, setSearchQuery] = useState('')
+  const [visibleCount, setVisibleCount] = useState(25)
 
   useEffect(() => {
     const id = setInterval(() => setTick((n) => n + 1), 60_000)
@@ -94,6 +95,13 @@ export default function DashboardClient({ restaurantId, restaurantName, restaura
         )
       })
     : filteredTickets
+
+  useEffect(() => {
+    setVisibleCount(25)
+  }, [activeFilter, searchQuery])
+
+  const visibleTickets = displayedTickets.slice(0, visibleCount)
+  const hasMore = displayedTickets.length > visibleCount
 
   const resolvedTypeCounts = resolvedToday.reduce<Record<string, number>>((acc, t) => {
     acc[t.type] = (acc[t.type] || 0) + 1
@@ -270,48 +278,60 @@ export default function DashboardClient({ restaurantId, restaurantName, restaura
               </button>
             </div>
           ) : (
-            <div className="divide-y divide-slate-100">
-              {displayedTickets.map((ticket) => {
-                const pCfg = priorityConfig(ticket.priority)
-                const sCfg = statusConfig(ticket.status)
-                return (
-                  <Link
-                    key={ticket.id}
-                    href={`/dashboard/tickets/${ticket.id}`}
-                    className={cn(
-                      'flex items-center gap-4 px-6 py-4 hover:bg-slate-50 transition-colors group border-l-2',
-                      ticket.priority === 'Critical' ? 'border-l-red-400' : 'border-l-transparent'
-                    )}
-                  >
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-1 flex-wrap">
-                        <span className="font-medium text-slate-900 text-sm">{ticket.type}</span>
-                        {ticket.guestStatus === 'Still here' && (
-                          <span className="inline-flex items-center gap-1 text-[11px] bg-[#DDFBFA] text-[#009B9A] border border-[#9EECEB] px-1.5 py-0.5 rounded-full font-medium">
-                            <span className="w-1.5 h-1.5 bg-[#009B9A] rounded-full" />
-                            Still here
+            <>
+              <div className="divide-y divide-slate-100">
+                {visibleTickets.map((ticket) => {
+                  const pCfg = priorityConfig(ticket.priority)
+                  const sCfg = statusConfig(ticket.status)
+                  return (
+                    <Link
+                      key={ticket.id}
+                      href={`/dashboard/tickets/${ticket.id}`}
+                      className={cn(
+                        'flex items-center gap-4 px-6 py-4 hover:bg-slate-50 transition-colors group border-l-2',
+                        ticket.priority === 'Critical' ? 'border-l-red-400' : 'border-l-transparent'
+                      )}
+                    >
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-1 flex-wrap">
+                          <span className="font-medium text-slate-900 text-sm">{ticket.type}</span>
+                          {ticket.guestStatus === 'Still here' && (
+                            <span className="inline-flex items-center gap-1 text-[11px] bg-[#DDFBFA] text-[#009B9A] border border-[#9EECEB] px-1.5 py-0.5 rounded-full font-medium">
+                              <span className="w-1.5 h-1.5 bg-[#009B9A] rounded-full" />
+                              Still here
+                            </span>
+                          )}
+                          <span className={cn('text-xs px-2 py-0.5 rounded-full border font-medium', pCfg.className)}>
+                            {pCfg.label}
                           </span>
-                        )}
-                        <span className={cn('text-xs px-2 py-0.5 rounded-full border font-medium', pCfg.className)}>
-                          {pCfg.label}
-                        </span>
-                        <span className={cn('text-xs px-2 py-0.5 rounded-full border font-medium', sCfg.className)}>
-                          {sCfg.label}
-                        </span>
+                          <span className={cn('text-xs px-2 py-0.5 rounded-full border font-medium', sCfg.className)}>
+                            {sCfg.label}
+                          </span>
+                        </div>
+                        <p className="text-sm text-slate-500 truncate">{ticket.message}</p>
                       </div>
-                      <p className="text-sm text-slate-500 truncate">{ticket.message}</p>
-                    </div>
 
-                    <div className="text-right shrink-0 space-y-0.5">
-                      <p className="text-xs font-medium text-slate-600">Table {ticket.table}</p>
-                      <p className="text-xs text-slate-400">{timeAgo(ticket.createdAt)}</p>
-                    </div>
+                      <div className="text-right shrink-0 space-y-0.5">
+                        <p className="text-xs font-medium text-slate-600">Table {ticket.table}</p>
+                        <p className="text-xs text-slate-400">{timeAgo(ticket.createdAt)}</p>
+                      </div>
 
-                    <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-slate-500 shrink-0 transition-colors" />
-                  </Link>
-                )
-              })}
-            </div>
+                      <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-slate-500 shrink-0 transition-colors" />
+                    </Link>
+                  )
+                })}
+              </div>
+              {hasMore && (
+                <div className="px-6 py-4 border-t border-slate-100 text-center">
+                  <button
+                    onClick={() => setVisibleCount((n) => n + 25)}
+                    className="text-sm text-slate-500 hover:text-slate-900 border border-slate-200 hover:border-slate-400 px-4 py-2 rounded-lg transition-colors"
+                  >
+                    Load more · {displayedTickets.length - visibleCount} remaining
+                  </button>
+                </div>
+              )}
+            </>
           )}
         </div>
       </main>
